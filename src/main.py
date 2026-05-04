@@ -1,6 +1,6 @@
 
-from data.csn_record import CSN_RECORD
-from logic.engine import register_org_data, run_pipeline
+from src.data.csn_record import CSN_RECORD
+from src.logic.engine import register_org_data, run_pipeline
 
 
 def main() -> None:
