@@ -1,0 +1,87 @@
+{
+  "concept": "SupportType",
+  "ontology_iri": "http://uva.thesis/ontologies/income#supportType",
+  "description": "Maps source fields that indicate the legal or administrative category of financial support to the SupportType concept. Each rule identifies the source value used to infer one of the ontology-level support types: ActivitySupport, StudyGrant, or StudyLoan.",
+  "version": "0.1.0-synthetic-aligned",
+  "rules": [
+    {
+      "source_file": "af_benefit_type_decision.csv",
+      "source_field": "benefit_type",
+      "description_field": "benefit_type_description",
+      "transformation": "benefit_type_to_support_type",
+      "target_class": "SupportType",
+      "target_property": "supportType",
+      "target_value": "ActivitySupport",
+      "source_value_field": "benefit_type",
+      "rationale": "AF benefit type decisions describe the type of labour-market benefit. Activity support benefit values map to the ontology support type ActivitySupport."
+    },
+    {
+      "source_file": "fk_case.csv",
+      "source_field": "case_type",
+      "transformation": "case_type_to_support_type",
+      "target_class": "SupportType",
+      "target_property": "supportType",
+      "target_value": "ActivitySupport",
+      "source_value_field": "case_type",
+      "rationale": "FK cases for activity support represent the administrative support category ActivitySupport in the ontology."
+    },
+    {
+      "source_file": "fk_period_benefit_decision.csv",
+      "source_field": "benefit_type",
+      "description_field": "benefit_type_description",
+      "transformation": "benefit_type_to_support_type",
+      "target_class": "SupportType",
+      "target_property": "supportType",
+      "target_value": "ActivitySupport",
+      "source_value_field": "benefit_type",
+      "rationale": "FK period benefit decisions identify the specific benefit type. Activity support benefit values map to the ontology support type ActivitySupport."
+    },
+    {
+      "source_file": "csn_study_support_case.csv",
+      "source_field": "support_type",
+      "description_field": "support_form_description",
+      "transformation": "support_type_to_support_type",
+      "target_class": "SupportType",
+      "target_property": "supportType",
+      "target_value_map": {
+        "student_grant": "StudyGrant",
+        "study_grant": "StudyGrant",
+        "grant": "StudyGrant",
+        "student_loan": "StudyLoan",
+        "study_loan": "StudyLoan",
+        "loan": "StudyLoan"
+      },
+      "source_value_field": "support_type",
+      "rationale": "CSN study support cases explicitly describe the type of study support. Grant-like values map to StudyGrant, while loan-like values map to StudyLoan."
+    },
+    {
+      "source_file": "csn_grant_decision.csv",
+      "source_field": "decision_type",
+      "transformation": "grant_decision_type_to_support_type",
+      "target_class": "SupportType",
+      "target_property": "supportType",
+      "target_value_map": {
+        "Grant": "StudyGrant",
+        "grant": "StudyGrant",
+        "Loan": "StudyLoan",
+        "loan": "StudyLoan"
+      },
+      "source_value_field": "decision_type",
+      "rationale": "CSN grant decision records classify the approved study-support decision. Grant decisions map to StudyGrant and loan decisions map to StudyLoan."
+    },
+    {
+  "source_file": "csn_approved_amounts.csv",
+  "source_field": "amount_type_code",
+  "description_field": "amount_type_label",
+  "transformation": "amount_type_code_to_support_type",
+  "target_class": "SupportType",
+  "target_property": "supportType",
+  "target_value_map": {
+    "GRUNDB": "StudyGrant",
+    "GRUNDL": "StudyLoan"
+  },
+  "source_value_field": "amount_type_code",
+  "rationale": "CSN approved amounts are divided by amount type. GRUNDB represents the grant component and maps to StudyGrant, while GRUNDL represents the loan component and maps to StudyLoan."
+}
+  ]
+}

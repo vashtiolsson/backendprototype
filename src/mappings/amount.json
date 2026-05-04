@@ -1,0 +1,62 @@
+{
+  "concept": "Amount",
+  "ontology_iri": "http://uva.thesis/ontologies/income#amount",
+  "description": "Maps source fields containing monetary values to the Amount concept (MonetaryAmount). Every rule must specify frequency and (where applicable) gross/net context, because the same numeric value means different things across sources.",
+  "version": "0.1.0-handmapped",
+  "rules": [
+    {
+      "source_file": "fk_payment.csv",
+      "source_field": "net_sek",
+      "transformation": "identity",
+      "currency": "SEK",
+      "frequency": "Month",
+      "context": "net",
+      "rationale": "FK pays Aktivitetsstöd as monthly utbetalningar. net_sek is the amount the citizen actually receives after tax withholding. Each row is one monthly payment, so summing all rows for a person yields the total received during the period."
+    },
+    {
+      "source_file": "fk_payment.csv",
+      "source_field": "gross_sek",
+      "transformation": "identity",
+      "currency": "SEK",
+      "frequency": "Month",
+      "context": "gross",
+      "rationale": "FK records the gross monthly amount before tax withholding (per Tabell 55+56 in SSBTEK v11)."
+    },
+    {
+      "source_file": "fk_period_benefit_decision.csv",
+      "source_field": "gross_amount_sek",
+      "transformation": "identity",
+      "currency": "SEK",
+      "frequency": "Total",
+      "context": "gross",
+      "rationale": "Per current synthetic data, the value stored represents the gross total for the entire decision period. Once the synthetic generator is corrected to per-period (Periodicitet=1, Monthly), this rule should change to frequency=Month."
+    },
+    {
+      "source_file": "csn_approved_amounts.csv",
+      "source_field": "amount_per_week_sek",
+      "transformation": "identity",
+      "currency": "SEK",
+      "frequency": "Week",
+      "context": "gross",
+      "rationale": "CSN denominates approved amounts per ISO week (per Tabell 21). Both GRUNDB (bidrag/grant) and GRUNDL (lån/loan) are reported in this format."
+    },
+    {
+      "source_file": "csn_approved_amounts.csv",
+      "source_field": "total_amount_sek",
+      "transformation": "identity",
+      "currency": "SEK",
+      "frequency": "Total",
+      "context": "gross",
+      "rationale": "CSN provides a precomputed total per amount type for the approved period. This is what the unified view should display as the headline number for a CSN study aid line."
+    },
+    {
+      "source_file": "csn_approved_period.csv",
+      "source_field": "total_amount_sek",
+      "transformation": "identity",
+      "currency": "SEK",
+      "frequency": "Total",
+      "context": "gross",
+      "rationale": "CSN also reports a combined total at the period level (sum of GRUNDB + GRUNDL). Useful as a cross-check against the per-type totals."
+    }
+  ]
+}

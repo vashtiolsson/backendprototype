@@ -1,0 +1,85 @@
+{
+  "concept": "TimePeriod",
+  "ontology_iri": "http://uva.thesis/ontologies/income#timePeriod",
+  "description": "Maps source fields that define bounded time intervals to the TimePeriod concept. Each rule identifies a start field and an end field, corresponding to the ontology properties startDate and endDate.",
+  "version": "0.1.0-synthetic-aligned",
+  "rules": [
+    {
+      "source_file": "af_job_seeker_status.csv",
+      "start_field": "registered_date",
+      "end_field": "deregistered_date",
+      "transformation": "start_end_pair",
+      "target_class": "TimePeriod",
+      "start_property": "startDate",
+      "end_property": "endDate",
+      "format": "Date",
+      "rationale": "registered_date marks when the person became registered as a job seeker, while deregistered_date marks when that registration ended. In active cases, deregistered_date may be empty."
+    },
+    {
+      "source_file": "af_benefit_type_decision.csv",
+      "start_field": "decision_from",
+      "end_field": "decision_to",
+      "transformation": "start_end_pair",
+      "target_class": "TimePeriod",
+      "start_property": "startDate",
+      "end_property": "endDate",
+      "format": "Date",
+      "rationale": "decision_from and decision_to define the validity period of the AF benefit type decision."
+    },
+    {
+      "source_file": "csn_applied_period.csv",
+      "start_field": "applied_from",
+      "end_field": "applied_to",
+      "transformation": "start_end_pair",
+      "target_class": "TimePeriod",
+      "start_property": "startDate",
+      "end_property": "endDate",
+      "format": "CompactDate",
+      "rationale": "applied_from and applied_to define the period for which study support was applied. CSN stores these dates in YYYYMMDD format."
+    },
+    {
+      "source_file": "csn_approved_period.csv",
+      "start_field": "start_week",
+      "end_field": "end_week",
+      "transformation": "week_pair_to_date_period",
+      "target_class": "TimePeriod",
+      "start_property": "startDate",
+      "end_property": "endDate",
+      "format": "YearWeek",
+      "rationale": "start_week and end_week define the approved CSN study period. CSN stores approved periods as ISO year-week values in YYYYWW format."
+    },
+    {
+      "source_file": "csn_grant_decision.csv",
+      "start_field": "period_start_week",
+      "end_field": "period_end_week",
+      "transformation": "week_pair_to_date_period",
+      "target_class": "TimePeriod",
+      "start_property": "startDate",
+      "end_property": "endDate",
+      "format": "YearWeek",
+      "rationale": "period_start_week and period_end_week define the grant decision period and are derived from the approved CSN period."
+    },
+    {
+      "source_file": "fk_case.csv",
+      "start_field": "opened_date",
+      "end_field": null,
+      "transformation": "open_start_date",
+      "target_class": "TimePeriod",
+      "start_property": "startDate",
+      "end_property": "endDate",
+      "format": "Date",
+      "rationale": "opened_date marks the beginning of the FK case. The synthetic dataset does not include a corresponding closed_date field, so the end date is unavailable."
+    },
+    {
+      "source_file": "fk_period_benefit_decision.csv",
+      "start_field": "decision_from",
+      "end_field": "decision_to",
+      "transformation": "start_end_pair",
+      "target_class": "TimePeriod",
+      "start_property": "startDate",
+      "end_property": "endDate",
+      "format": "Date",
+      "rationale": "decision_from and decision_to define the FK period benefit decision interval."
+    }
+  ]
+}

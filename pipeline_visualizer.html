@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend Pipeline Visualizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .arrow { position: relative; }
+    .arrow::after {
+      content: "→";
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.25rem;
+      color: #94a3b8;
+    }
+    .rule-row:hover { background: #f8fafc; }
+    .tab-btn.active { border-bottom: 2px solid #6366f1; color: #6366f1; font-weight: 600; }
+    .tag-af    { background: #dbeafe; color: #1d4ed8; }
+    .tag-fk    { background: #dcfce7; color: #15803d; }
+    .tag-csn   { background: #ffedd5; color: #c2410c; }
+    .tag-all   { background: #f3e8ff; color: #7e22ce; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+<!-- ── Header ─────────────────────────────────────────────── -->
+<header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+  <div>
+    <h1 class="text-xl font-bold tracking-tight text-slate-900">Backend Pipeline Visualizer</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Income ontology · AF + FK + CSN synthetic data</p>
+  </div>
+  <a href="http://localhost:8000/docs" target="_blank"
+     class="text-xs bg-rose-50 text-rose-600 border border-rose-200 rounded px-3 py-1.5 hover:bg-rose-100 transition">
+    API docs ↗
+  </a>
+</header>
+
+<!-- ── Pipeline flow ──────────────────────────────────────── -->
+<section class="bg-white border-b border-slate-200 px-8 py-5">
+  <p class="text-xs uppercase tracking-widest text-slate-400 mb-4">Pipeline</p>
+  <div class="flex items-center gap-10 overflow-x-auto pb-1">
+
+    <div class="arrow flex-shrink-0 text-center">
+      <div class="bg-slate-700 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
+        CSV Sources
+      </div>
+      <div class="text-xs text-slate-400 mt-1.5">12 files · 3 authorities</div>
+    </div>
+
+    <div class="arrow flex-shrink-0 text-center" style="margin-left:8px">
+      <div class="bg-amber-500 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
+        JSON Mappings
+      </div>
+      <div class="text-xs text-slate-400 mt-1.5">6 concept files · src/mappings/</div>
+    </div>
+
+    <div class="arrow flex-shrink-0 text-center" style="margin-left:8px">
+      <div class="bg-teal-600 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
+        Python Transforms
+      </div>
+      <div class="text-xs text-slate-400 mt-1.5">6 transformers · src/transform/</div>
+    </div>
+
+    <div class="arrow flex-shrink-0 text-center" style="margin-left:8px">
+      <div class="bg-violet-600 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
+        Pydantic Models
+      </div>
+      <div class="text-xs text-slate-400 mt-1.5">6 schemas · src/models/</div>
+    </div>
+
+    <div class="flex-shrink-0 text-center" style="margin-left:8px">
+      <div class="bg-rose-500 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
+        FastAPI
+      </div>
+      <div class="text-xs text-slate-400 mt-1.5">POST /api/test-pipeline</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Main content ──────────────────────────────────────── -->
+<main class="flex gap-0 h-full">
+
+  <!-- Concept sidebar -->
+  <aside class="w-52 flex-shrink-0 bg-white border-r border-slate-200 pt-4" style="min-height:calc(100vh - 140px)">
+    <p class="text-xs uppercase tracking-widest text-slate-400 px-4 mb-2">Concepts</p>
+    <div id="concept-nav" class="flex flex-col gap-0.5 px-2"></div>
+
+    <p class="text-xs uppercase tracking-widest text-slate-400 px-4 mt-6 mb-2">Sources</p>
+    <div id="source-nav" class="flex flex-col gap-0.5 px-2"></div>
+
+    <p class="text-xs uppercase tracking-widest text-slate-400 px-4 mt-6 mb-2">API</p>
+    <div class="px-2">
+      <button onclick="selectSection('api')"
+        class="nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition"
+        data-section="api">
+        /api/test-pipeline
+      </button>
+    </div>
+  </aside>
+
+  <!-- Detail panel -->
+  <div class="flex-1 overflow-auto p-8" style="min-height:calc(100vh - 140px)">
+    <div id="detail-panel"></div>
+  </div>
+
+</main>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────
+
+const SOURCES = [
+  { file: "af_activity_report.csv",        authority: "AF",  description: "Activity report entries for job seekers" },
+  { file: "af_benefit_type_decision.csv",   authority: "AF",  description: "AF benefit type decisions with scope and period" },
+  { file: "af_job_seeker_status.csv",       authority: "AF",  description: "Job seeker registration status and category" },
+  { file: "csn_applied_period.csv",         authority: "CSN", description: "Study aid application periods (CompactDate format)" },
+  { file: "csn_approved_amounts.csv",       authority: "CSN", description: "Approved weekly/total amounts by type (GRUNDB/GRUNDL)" },
+  { file: "csn_approved_period.csv",        authority: "CSN", description: "Approved study period with study pace (YearWeek format)" },
+  { file: "csn_grant_decision.csv",         authority: "CSN", description: "Grant decisions with period and grant code" },
+  { file: "csn_study_support_case.csv",     authority: "CSN", description: "Study support case type and form description" },
+  { file: "fk_activity_support_details.csv",authority: "FK",  description: "Activity support detail records" },
+  { file: "fk_case.csv",                    authority: "FK",  description: "FK cases with benefit group code and opened date" },
+  { file: "fk_payment.csv",                 authority: "FK",  description: "Monthly gross/net payments per benefit type" },
+  { file: "fk_period_benefit_decision.csv", authority: "FK",  description: "Period benefit decisions with amount and scope" },
+];
+
+const CONCEPTS = {
+  SupportType: {
+    color: "violet",
+    ontologyIRI: "http://uva.thesis/ontologies/income#supportType",
+    mappingFile: "src/mappings/support_type.json",
+    transformFile: "src/transform/support_type.py",
+    modelFile: "src/models/support_type.py",
+    description: "Maps source fields indicating the legal or administrative category of financial support to ontology-level support types.",
+    enums: {
+      SupportTypeValue: ["ActivitySupport", "StudyGrant", "StudyLoan", "StudySupport"]
+    },
+    fields: [
+      { name: "support_type",      type: "SupportTypeValue", required: true },
+      { name: "source_value",      type: "str",              required: true },
+      { name: "source_description",type: "Optional[str]",    required: false },
+      { name: "source_file",       type: "str",              required: true, provenance: true },
+      { name: "source_field",      type: "str",              required: true, provenance: true },
+      { name: "source_record_id",  type: "str",              required: true, provenance: true },
+    ],
+    rules: [
+      { source_file: "af_benefit_type_decision.csv",  source_field: "benefit_type",       transformation: "benefit_type_to_support_type",      target: "ActivitySupport" },
+      { source_file: "fk_case.csv",                   source_field: "case_type",           transformation: "case_type_to_support_type",          target: "ActivitySupport" },
+      { source_file: "fk_period_benefit_decision.csv",source_field: "benefit_type",       transformation: "benefit_type_to_support_type",      target: "ActivitySupport" },
+      { source_file: "csn_study_support_case.csv",    source_field: "support_type",        transformation: "support_type_to_support_type",      target: "StudyGrant / StudyLoan (map)" },
+      { source_file: "csn_grant_decision.csv",        source_field: "decision_type",       transformation: "grant_decision_type_to_support_type",target: "StudyGrant / StudyLoan (map)" },
+      { source_file: "csn_approved_amounts.csv",      source_field: "amount_type_code",    transformation: "amount_type_code_to_support_type",   target: "StudyGrant (GRUNDB) / StudyLoan (GRUNDL)" },
+    ]
+  },
+
+  Amount: {
+    color: "amber",
+    ontologyIRI: "http://uva.thesis/ontologies/income#amount",
+    mappingFile: "src/mappings/amount.json",
+    transformFile: "src/transform/amount.py",
+    modelFile: "src/models/amount.py",
+    description: "Maps monetary value fields from source files to the Amount concept (MonetaryAmount), capturing frequency and gross/net context.",
+    enums: {
+      Frequency:     ["Week", "Month", "Total"],
+      ValueContext:  ["gross", "net"],
+    },
+    fields: [
+      { name: "value",             type: "Decimal",           required: true },
+      { name: "currency",          type: "str",               required: true, default: "SEK" },
+      { name: "frequency",         type: "Frequency",         required: true },
+      { name: "context",           type: "Optional[ValueContext]", required: false },
+      { name: "source_file",       type: "str",               required: true, provenance: true },
+      { name: "source_field",      type: "str",               required: true, provenance: true },
+      { name: "source_record_id",  type: "str",               required: true, provenance: true },
+    ],
+    rules: [
+      { source_file: "fk_payment.csv",                source_field: "net_sek",            transformation: "identity", target: "SEK · Month · net" },
+      { source_file: "fk_payment.csv",                source_field: "gross_sek",          transformation: "identity", target: "SEK · Month · gross" },
+      { source_file: "fk_period_benefit_decision.csv",source_field: "gross_amount_sek",   transformation: "identity", target: "SEK · Total · gross" },
+      { source_file: "csn_approved_amounts.csv",      source_field: "amount_per_week_sek",transformation: "identity", target: "SEK · Week · gross" },
+      { source_file: "csn_approved_amounts.csv",      source_field: "total_amount_sek",   transformation: "identity", target: "SEK · Total · gross" },
+      { source_file: "csn_approved_period.csv",       source_field: "total_amount_sek",   transformation: "identity", target: "SEK · Total · gross" },
+    ]
+  },
+
+  TimePeriod: {
+    color: "sky",
+    ontologyIRI: "http://uva.thesis/ontologies/income#timePeriod",
+    mappingFile: "src/mappings/period.json",
+    transformFile: "src/transform/period.py",
+    modelFile: "src/models/period.py",
+    description: "Maps start/end date fields from source files to the TimePeriod concept, normalising three different date formats across authorities.",
+    enums: {
+      TimeFormat: ["Date (YYYY-MM-DD)", "CompactDate (YYYYMMDD)", "YearWeek (YYYYWW)"]
+    },
+    fields: [
+      { name: "start_date",         type: "date",              required: true },
+      { name: "end_date",           type: "Optional[date]",    required: false },
+      { name: "source_format",      type: "TimeFormat",        required: true },
+      { name: "source_file",        type: "str",               required: true, provenance: true },
+      { name: "source_start_field", type: "str",               required: true, provenance: true },
+      { name: "source_end_field",   type: "Optional[str]",     required: false, provenance: true },
+      { name: "source_record_id",   type: "str",               required: true, provenance: true },
+    ],
+    rules: [
+      { source_file: "af_job_seeker_status.csv",      source_field: "registered_date / deregistered_date", transformation: "start_end_pair",           target: "Date format" },
+      { source_file: "af_benefit_type_decision.csv",  source_field: "decision_from / decision_to",         transformation: "start_end_pair",           target: "Date format" },
+      { source_file: "csn_applied_period.csv",        source_field: "applied_from / applied_to",           transformation: "start_end_pair",           target: "CompactDate format" },
+      { source_file: "csn_approved_period.csv",       source_field: "start_week / end_week",               transformation: "week_pair_to_date_period",  target: "YearWeek → date" },
+      { source_file: "csn_grant_decision.csv",        source_field: "period_start_week / period_end_week", transformation: "week_pair_to_date_period",  target: "YearWeek → date" },
+      { source_file: "fk_case.csv",                   source_field: "opened_date",                         transformation: "open_start_date",           target: "Date · open-ended" },
+      { source_file: "fk_period_benefit_decision.csv",source_field: "decision_from / decision_to",         transformation: "start_end_pair",           target: "Date format" },
+    ]
+  },
+
+  Person: {
+    color: "green",
+    ontologyIRI: "http://uva.thesis/ontologies/income#person",
+    mappingFile: "src/mappings/person.json",
+    transformFile: "src/transform/person.py",
+    modelFile: "src/models/person.py",
+    description: "Maps the shared personal identifier used across all source files to the Person concept. Intentionally minimal — exists to link records across AF, FK, and CSN.",
+    enums: {},
+    fields: [
+      { name: "person_id", type: "str", required: true },
+    ],
+    rules: [
+      { source_file: "* (all 12 files)", source_field: "personal_id", transformation: "personal_id_to_person", target: "Person.personId" },
+    ]
+  },
+
+  Status: {
+    color: "rose",
+    ontologyIRI: "http://uva.thesis/ontologies/income#status",
+    mappingFile: "src/mappings/status.json",
+    transformFile: "src/transform/status.py",
+    modelFile: "src/models/status.py",
+    description: "Maps lifecycle state fields to the Status concept. Ontology values: Active, Approved, Inactive, Initiated, Planned.",
+    enums: {
+      StatusType: ["Active", "Approved", "Inactive", "Initiated", "Planned"]
+    },
+    fields: [
+      { name: "status_type",       type: "StatusType",        required: true },
+      { name: "source_value",      type: "str",               required: true },
+      { name: "source_description",type: "Optional[str]",     required: false },
+      { name: "source_file",       type: "str",               required: true, provenance: true },
+      { name: "source_field",      type: "str",               required: true, provenance: true },
+      { name: "source_record_id",  type: "str",               required: true, provenance: true },
+    ],
+    rules: [
+      { source_file: "—", source_field: "—", transformation: "—", target: "Mapping rules in progress (status.json)" },
+    ]
+  },
+
+  Occupation: {
+    color: "teal",
+    ontologyIRI: "http://uva.thesis/ontologies/income#occupation",
+    mappingFile: "src/mappings/occupation.json",
+    transformFile: "src/transform/occupation.py",
+    modelFile: "src/models/occupation.py",
+    description: "Maps source fields indicating whether a person is a job seeker, student, or employer to the Occupation concept.",
+    enums: {
+      OccupationType: ["Employer", "JobSeeker", "Student"]
+    },
+    fields: [
+      { name: "occupation_type",    type: "OccupationType",   required: true },
+      { name: "source_value",       type: "str",              required: true },
+      { name: "source_description", type: "Optional[str]",    required: false },
+      { name: "scope_pct",          type: "Optional[int]",    required: false },
+      { name: "source_file",        type: "str",              required: true, provenance: true },
+      { name: "source_field",       type: "str",              required: true, provenance: true },
+      { name: "source_record_id",   type: "str",              required: true, provenance: true },
+    ],
+    rules: [
+      { source_file: "af_job_seeker_status.csv",    source_field: "category",        transformation: "category_to_occupation",       target: "JobSeeker" },
+      { source_file: "csn_study_support_case.csv",  source_field: "support_type",    transformation: "support_type_to_occupation",   target: "Student" },
+      { source_file: "csn_grant_decision.csv",      source_field: "decision_type",   transformation: "grant_decision_to_occupation", target: "Student (+ scope_pct)" },
+      { source_file: "csn_approved_period.csv",     source_field: "study_pace_pct",  transformation: "study_pace_to_occupation",     target: "Student (+ scope_pct)" },
+    ]
+  },
+};
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+
+function authorityTag(authority) {
+  const cls = { AF: "tag-af", FK: "tag-fk", CSN: "tag-csn", "*": "tag-all" }[authority] || "tag-all";
+  return `<span class="inline-block text-xs font-semibold px-2 py-0.5 rounded ${cls}">${authority}</span>`;
+}
+
+function fileAuthority(filename) {
+  if (filename.startsWith("af_")) return "AF";
+  if (filename.startsWith("fk_")) return "FK";
+  if (filename.startsWith("csn_")) return "CSN";
+  return "*";
+}
+
+function colorClasses(color) {
+  const map = {
+    violet: { bg: "bg-violet-50", border: "border-violet-200", title: "text-violet-700", badge: "bg-violet-100 text-violet-700" },
+    amber:  { bg: "bg-amber-50",  border: "border-amber-200",  title: "text-amber-700",  badge: "bg-amber-100 text-amber-700" },
+    sky:    { bg: "bg-sky-50",    border: "border-sky-200",    title: "text-sky-700",    badge: "bg-sky-100 text-sky-700" },
+    green:  { bg: "bg-green-50",  border: "border-green-200",  title: "text-green-700",  badge: "bg-green-100 text-green-700" },
+    rose:   { bg: "bg-rose-50",   border: "border-rose-200",   title: "text-rose-700",   badge: "bg-rose-100 text-rose-700" },
+    teal:   { bg: "bg-teal-50",   border: "border-teal-200",   title: "text-teal-700",   badge: "bg-teal-100 text-teal-700" },
+  };
+  return map[color] || map.violet;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────
+
+let currentSection = null;
+
+function selectConcept(name) {
+  currentSection = name;
+  updateNav();
+  const concept = CONCEPTS[name];
+  const c = colorClasses(concept.color);
+
+  const enumsHtml = Object.entries(concept.enums).map(([enumName, values]) => `
+    <div class="mb-3">
+      <p class="text-xs font-semibold text-slate-500 mb-1.5">${enumName}</p>
+      <div class="flex flex-wrap gap-1.5">
+        ${values.map(v => `<span class="text-xs rounded px-2 py-1 ${c.badge} font-mono">${v}</span>`).join("")}
+      </div>
+    </div>
+  `).join("") || `<p class="text-xs text-slate-400 italic">No enums — plain fields only</p>`;
+
+  const fieldsHtml = concept.fields.map(f => `
+    <tr class="rule-row border-b border-slate-100">
+      <td class="py-2 pr-4 font-mono text-sm ${f.provenance ? "text-slate-400" : "text-slate-700"}">${f.name}</td>
+      <td class="py-2 pr-4 text-xs text-slate-500 font-mono">${f.type}</td>
+      <td class="py-2 text-xs">${f.required ? '<span class="text-rose-500">required</span>' : '<span class="text-slate-400">optional</span>'}${f.default ? ` <span class="text-slate-400">default="${f.default}"</span>` : ""}${f.provenance ? ' <span class="text-amber-600 font-medium">provenance</span>' : ""}</td>
+    </tr>
+  `).join("");
+
+  const rulesHtml = concept.rules.map(r => {
+    const auth = fileAuthority(r.source_file.split(" ")[0]);
+    return `
+    <tr class="rule-row border-b border-slate-100">
+      <td class="py-2.5 pr-4 text-xs font-mono text-slate-600">${authorityTag(auth)} <span class="ml-1">${r.source_file}</span></td>
+      <td class="py-2.5 pr-4 text-xs font-mono text-slate-600">${r.source_field}</td>
+      <td class="py-2.5 pr-4 text-xs text-teal-700 font-mono">${r.transformation}</td>
+      <td class="py-2.5 text-xs font-semibold text-slate-700">${r.target}</td>
+    </tr>
+  `}).join("");
+
+  document.getElementById("detail-panel").innerHTML = `
+    <div class="max-w-4xl">
+      <!-- Concept header -->
+      <div class="flex items-start justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">${name}</h2>
+          <p class="text-xs text-slate-400 font-mono mt-1">${concept.ontologyIRI}</p>
+          <p class="text-sm text-slate-600 mt-2 max-w-2xl">${concept.description}</p>
+        </div>
+      </div>
+
+      <!-- File paths -->
+      <div class="flex flex-wrap gap-2 mb-6">
+        ${[
+          { label: "Mapping", file: concept.mappingFile, color: "amber" },
+          { label: "Transform", file: concept.transformFile, color: "teal" },
+          { label: "Model", file: concept.modelFile, color: "violet" },
+        ].map(f => `
+          <div class="flex items-center gap-1.5 bg-slate-100 rounded px-3 py-1.5">
+            <span class="text-xs text-slate-400">${f.label}</span>
+            <span class="text-xs font-mono text-slate-700">${f.file}</span>
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="grid grid-cols-2 gap-6 mb-8">
+        <!-- Model fields -->
+        <div class="${c.bg} border ${c.border} rounded-xl p-5">
+          <h3 class="text-xs font-semibold uppercase tracking-widest ${c.title} mb-4">Pydantic Model Fields</h3>
+          <table class="w-full">
+            <thead>
+              <tr class="text-xs text-slate-400 border-b border-slate-200">
+                <th class="text-left pb-2 font-normal">Field</th>
+                <th class="text-left pb-2 font-normal">Type</th>
+                <th class="text-left pb-2 font-normal">Notes</th>
+              </tr>
+            </thead>
+            <tbody>${fieldsHtml}</tbody>
+          </table>
+        </div>
+
+        <!-- Enums -->
+        <div class="${c.bg} border ${c.border} rounded-xl p-5">
+          <h3 class="text-xs font-semibold uppercase tracking-widest ${c.title} mb-4">Enum Values</h3>
+          ${enumsHtml}
+        </div>
+      </div>
+
+      <!-- Mapping rules -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-4">
+          Mapping Rules
+          <span class="ml-2 normal-case font-normal text-slate-400">${concept.mappingFile}</span>
+        </h3>
+        <table class="w-full">
+          <thead>
+            <tr class="text-xs text-slate-400 border-b border-slate-200">
+              <th class="text-left pb-2 font-normal">Source File</th>
+              <th class="text-left pb-2 font-normal">Source Field</th>
+              <th class="text-left pb-2 font-normal">Transformation</th>
+              <th class="text-left pb-2 font-normal">Target Value</th>
+            </tr>
+          </thead>
+          <tbody>${rulesHtml}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function selectSources() {
+  currentSection = "sources";
+  updateNav();
+
+  const byAuthority = { AF: [], FK: [], CSN: [] };
+  SOURCES.forEach(s => byAuthority[s.authority].push(s));
+
+  const authorityColors = {
+    AF:  "bg-blue-50 border-blue-200",
+    FK:  "bg-green-50 border-green-200",
+    CSN: "bg-orange-50 border-orange-200",
+  };
+
+  const html = Object.entries(byAuthority).map(([auth, files]) => `
+    <div class="mb-6">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">${auth} · ${files.length} files</h3>
+      <div class="grid grid-cols-2 gap-3">
+        ${files.map(f => `
+          <div class="${authorityColors[auth]} border rounded-lg p-4">
+            <p class="text-sm font-mono font-semibold text-slate-700 mb-1">${f.file}</p>
+            <p class="text-xs text-slate-500">${f.description}</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  document.getElementById("detail-panel").innerHTML = `
+    <div class="max-w-3xl">
+      <h2 class="text-2xl font-bold text-slate-900 mb-2">Source Files</h2>
+      <p class="text-sm text-slate-500 mb-6">All synthetic SSBTEK CSV files. Located in <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">mapping_copilot/data/raw/</span>. All files share a <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">personal_id</span> column for cross-authority linking.</p>
+      ${html}
+    </div>
+  `;
+}
+
+function selectSection(section) {
+  if (section === "sources") return selectSources();
+  if (section === "api") return selectAPI();
+}
+
+function selectAPI() {
+  currentSection = "api";
+  updateNav();
+
+  document.getElementById("detail-panel").innerHTML = `
+    <div class="max-w-2xl">
+      <h2 class="text-2xl font-bold text-slate-900 mb-2">API</h2>
+      <p class="text-sm text-slate-500 mb-6">Start with: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">uvicorn api:app --reload</span> from the project root.</p>
+
+      <!-- Endpoints -->
+      <div class="space-y-4 mb-8">
+        <div class="bg-white border border-slate-200 rounded-xl p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">GET</span>
+            <span class="font-mono text-sm text-slate-700">/</span>
+            <span class="text-xs text-slate-400">Health check</span>
+          </div>
+          <pre class="bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono text-slate-600">{ "status": "API is running" }</pre>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">POST</span>
+            <span class="font-mono text-sm text-slate-700">/api/test-pipeline</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p class="text-xs font-semibold text-slate-500 mb-1.5">Request body</p>
+              <pre class="bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono text-slate-600">{ "category": "income" }</pre>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-slate-500 mb-1.5">Response</p>
+              <pre class="bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono text-slate-600">{
+  "output": {
+    "category": "income",
+    "person_id": "20000421-1234",
+    "support_type": [...]
+  }
+}</pre>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-500 mb-3">What it does: runs <code class="bg-slate-100 px-1 rounded">transform_support_type("20000421-1234")</code> and returns all matched SupportType instances for Jane Doe from the synthetic CSV data.</p>
+        </div>
+      </div>
+
+      <!-- Live test -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-700 mb-4">Live test <span class="text-xs font-normal text-slate-400">(API must be running on localhost:8000)</span></h3>
+        <div class="flex gap-2 mb-4">
+          <input id="api-input" type="text" value="income"
+            class="border border-slate-200 rounded px-3 py-2 text-sm font-mono flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            placeholder="category" />
+          <button onclick="callAPI()"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded transition">
+            Send
+          </button>
+        </div>
+        <pre id="api-result" class="bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono text-slate-600 min-h-12 whitespace-pre-wrap">
+— press Send to call the API —
+        </pre>
+      </div>
+    </div>
+  `;
+}
+
+async function callAPI() {
+  const category = document.getElementById("api-input").value.trim();
+  const resultEl = document.getElementById("api-result");
+  resultEl.textContent = "Calling localhost:8000…";
+  try {
+    const res = await fetch("http://localhost:8000/api/test-pipeline", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category }),
+    });
+    const data = await res.json();
+    resultEl.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    resultEl.textContent = `Error: ${err.message}\n\nMake sure the API is running:\n  uvicorn api:app --reload`;
+  }
+}
+
+function updateNav() {
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    const isActive = btn.dataset.concept === currentSection || btn.dataset.section === currentSection;
+    btn.className = `nav-btn w-full text-left text-sm px-3 py-2 rounded-md transition ${
+      isActive ? "bg-indigo-50 text-indigo-700 font-semibold" : "text-slate-600 hover:bg-slate-100"
+    }`;
+  });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+
+function buildNav() {
+  const conceptNav = document.getElementById("concept-nav");
+  Object.keys(CONCEPTS).forEach(name => {
+    const btn = document.createElement("button");
+    btn.className = "nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition";
+    btn.dataset.concept = name;
+    btn.textContent = name;
+    btn.onclick = () => selectConcept(name);
+    conceptNav.appendChild(btn);
+  });
+
+  const sourceNav = document.getElementById("source-nav");
+  const sourceBtn = document.createElement("button");
+  sourceBtn.className = "nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition";
+  sourceBtn.dataset.section = "sources";
+  sourceBtn.textContent = "All 12 CSV files";
+  sourceBtn.onclick = () => selectSources();
+  sourceNav.appendChild(sourceBtn);
+}
+
+buildNav();
+selectConcept("SupportType");
+</script>
+</body>
+</html>

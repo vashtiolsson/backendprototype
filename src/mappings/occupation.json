@@ -1,0 +1,54 @@
+{
+  "concept": "Occupation",
+  "ontology_iri": "http://uva.thesis/ontologies/income#occupation",
+  "description": "Maps source fields that indicate whether a person is a job seeker, student, or employer to the Occupation concept. Each rule identifies the source value used to infer the ontology-level occupation type.",
+  "version": "0.1.0-synthetic-aligned",
+  "rules": [
+    {
+      "source_file": "af_job_seeker_status.csv",
+      "source_field": "category",
+      "scope_field": "scope_pct",
+      "transformation": "category_to_occupation",
+      "target_class": "Occupation",
+      "target_property": "occupationType",
+      "target_value": "JobSeeker",
+      "source_value_field": "category",
+      "rationale": "The AF job seeker status file explicitly describes the person's labour-market registration category. Values such as 'Openly unemployed' indicate that the person should be represented as a JobSeeker occupation."
+    },
+   
+    {
+      "source_file": "csn_study_support_case.csv",
+      "source_field": "support_type",
+      "description_field": "support_form_description",
+      "transformation": "support_type_to_occupation",
+      "target_class": "Occupation",
+      "target_property": "occupationType",
+      "target_value": "Student",
+      "source_value_field": "support_type",
+      "rationale": "CSN study support cases concern study finance. A support_type such as 'student_grant' indicates that the person is connected to studies and should be represented as a Student occupation."
+    },
+    {
+      "source_file": "csn_grant_decision.csv",
+      "source_field": "decision_type",
+      "description_field": "study_mode",
+      "scope_field": "scope_pct",
+      "transformation": "grant_decision_to_occupation",
+      "target_class": "Occupation",
+      "target_property": "occupationType",
+      "target_value": "Student",
+      "source_value_field": "decision_type",
+      "rationale": "A CSN grant decision is issued for study support. The decision_type identifies the study-support decision, while study_mode and scope_pct describe how the studies are carried out and at what extent."
+    },
+    {
+      "source_file": "csn_approved_period.csv",
+      "source_field": "study_pace_pct",
+      "scope_field": "study_pace_pct",
+      "transformation": "study_pace_to_occupation",
+      "target_class": "Occupation",
+      "target_property": "occupationType",
+      "target_value": "Student",
+      "source_value_field": "study_pace_pct",
+      "rationale": "The approved CSN period contains study_pace_pct, which directly describes the extent of approved studies. This supports classification as Student and provides the occupation scope."
+    }
+  ]
+}

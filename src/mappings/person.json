@@ -1,0 +1,17 @@
+{
+  "concept": "Person",
+  "ontology_iri": "http://uva.thesis/ontologies/income#person",
+  "description": "Maps the shared personal identifier used across AF, FK, and CSN source files to the Person concept. The Person concept is intentionally minimal and only represents the individual identity needed to link records across authorities.",
+  "version": "0.1.0-synthetic-aligned",
+  "rules": [
+    {
+      "source_file": "*",
+      "source_field": "personal_id",
+      "transformation": "personal_id_to_person",
+      "target_class": "Person",
+      "target_property": "personId",
+      "source_value_field": "personal_id",
+      "rationale": "All synthetic SSBTEK source files use personal_id as the shared identifier for an individual. This value is mapped directly to the ontology-level Person.personId so records from AF, FK, and CSN can be linked to the same person."
+    }
+  ]
+}

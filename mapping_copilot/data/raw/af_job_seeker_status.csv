@@ -1,0 +1,25 @@
+personal_id,registered,category,scope_pct,registered_date,deregistered_date,unemployment_fund
+20000421-1234,false,Openly unemployed,100,2025-09-01,2025-12-31,Academics Unemployment Fund
+19910112-2824,false,Openly unemployed,50,2025-09-01,2025-11-30,Municipal Workers Unemployment Fund
+19670114-4657,false,Other job-seeker category,75,2025-09-01,2026-02-28,
+19640706-9935,false,Openly unemployed,100,2025-09-01,2025-11-30,Academics Unemployment Fund
+19710705-1488,false,Openly unemployed,50,2025-07-01,2025-09-29,Trade Workers Unemployment Fund
+19761106-3547,false,Openly unemployed,100,2025-01-01,2025-04-01,Academics Unemployment Fund
+19860129-2674,false,Openly unemployed,50,2025-01-01,2025-05-01,Trade Workers Unemployment Fund
+20010524-7201,false,Other job-seeker category,100,2025-07-01,2025-12-28,
+20041003-7227,false,Other job-seeker category,100,2025-04-01,2025-09-28,IF Metal Unemployment Fund
+19970802-6977,false,Openly unemployed,100,2025-09-01,2025-11-30,IF Metal Unemployment Fund
+20021021-5010,false,Other job-seeker category,75,2025-07-01,2025-10-29,Academics Unemployment Fund
+19880507-1916,false,Other job-seeker category,50,2025-01-01,2025-04-01,Municipal Workers Unemployment Fund
+19670904-6155,false,Openly unemployed,100,2025-01-01,2025-04-01,
+19630522-8517,false,Other job-seeker category,100,2025-09-01,2025-11-30,Municipal Workers Unemployment Fund
+19720528-9830,false,Openly unemployed,75,2025-09-01,2025-11-30,
+20021023-7543,false,Openly unemployed,100,2025-01-01,2025-04-01,Trade Workers Unemployment Fund
+19910104-2040,false,Other job-seeker category,75,2025-04-01,2025-07-30,Trade Workers Unemployment Fund
+19640213-6573,false,Openly unemployed,75,2025-09-01,2025-11-30,Academics Unemployment Fund
+19851128-8433,false,Other job-seeker category,75,2025-09-01,2025-12-30,IF Metal Unemployment Fund
+19660223-4258,false,Openly unemployed,75,2025-09-01,2025-11-30,Trade Workers Unemployment Fund
+19860322-6038,false,Openly unemployed,50,2025-01-01,2025-06-30,Municipal Workers Unemployment Fund
+19791117-2290,false,Other job-seeker category,50,2025-01-01,2025-04-01,
+19910915-3060,false,Openly unemployed,100,2025-04-01,2025-06-30,Academics Unemployment Fund
+19981007-3705,false,Openly unemployed,75,2025-01-01,2025-06-30,Academics Unemployment Fund
