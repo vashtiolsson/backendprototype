@@ -18,7 +18,7 @@ class RequestBody(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "API is running"}
+    return {"status": "NEW BACKEND IS LIVE"}
 
 @app.post("/api/test-pipeline")
 def test_pipeline(body: RequestBody):
