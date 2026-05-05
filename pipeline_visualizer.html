@@ -6,31 +6,34 @@
   <title>Backend Pipeline Visualizer</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .arrow { position: relative; }
-    .arrow::after {
-      content: "→";
-      position: absolute;
-      right: -18px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.25rem;
-      color: #94a3b8;
-    }
-    .rule-row:hover { background: #f8fafc; }
-    .tab-btn.active { border-bottom: 2px solid #6366f1; color: #6366f1; font-weight: 600; }
-    .tag-af    { background: #dbeafe; color: #1d4ed8; }
-    .tag-fk    { background: #dcfce7; color: #15803d; }
-    .tag-csn   { background: #ffedd5; color: #c2410c; }
-    .tag-all   { background: #f3e8ff; color: #7e22ce; }
+    .stage-output { max-height: 0; overflow: hidden; transition: max-height 0.38s ease, opacity 0.3s ease; opacity: 0; }
+    .stage-output.open { max-height: 9000px; opacity: 1; }
+    .connector { display: flex; flex-direction: column; align-items: center; height: 32px; gap: 0; }
+    .connector .line { width: 2px; flex: 1; background: #cbd5e1; }
+    .connector .arrowhead { color: #94a3b8; font-size: 10px; line-height: 1; }
+    .nav-btn.active { background: #eef2ff !important; color: #4338ca !important; font-weight: 600; }
+    .tag-af  { background: #dbeafe; color: #1d4ed8; }
+    .tag-fk  { background: #dcfce7; color: #15803d; }
+    .tag-csn { background: #ffedd5; color: #c2410c; }
+    .tag-all { background: #f3e8ff; color: #7e22ce; }
+    .flow-arrow::after { content: "→"; position: absolute; right: -16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.1rem; }
+    .flow-arrow { position: relative; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+
+    .trace-output { display:none; }
+.trace-output.open { display:block; }
+.trace-tab.active { background:#2563eb; color:white; }
+.score-bar { height: 8px; border-radius: 999px; background:#e2e8f0; overflow:hidden; }
+.score-bar > div { height:100%; background:#2563eb; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
 
-<!-- ── Header ─────────────────────────────────────────────── -->
-<header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
   <div>
-    <h1 class="text-xl font-bold tracking-tight text-slate-900">Backend Pipeline Visualizer</h1>
-    <p class="text-xs text-slate-400 mt-0.5">Income ontology · AF + FK + CSN synthetic data</p>
+    <h1 class="text-xl font-bold text-slate-900">Backend Pipeline Visualizer</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Income ontology · AF + FK + CSN · Jane Doe (20000421-1234)</p>
   </div>
   <a href="http://localhost:8000/docs" target="_blank"
      class="text-xs bg-rose-50 text-rose-600 border border-rose-200 rounded px-3 py-1.5 hover:bg-rose-100 transition">
@@ -38,442 +41,1595 @@
   </a>
 </header>
 
-<!-- ── Pipeline flow ──────────────────────────────────────── -->
+<!-- Pipeline flow bar -->
 <section class="bg-white border-b border-slate-200 px-8 py-5">
-  <p class="text-xs uppercase tracking-widest text-slate-400 mb-4">Pipeline</p>
-  <div class="flex items-center gap-10 overflow-x-auto pb-1">
-
-    <div class="arrow flex-shrink-0 text-center">
-      <div class="bg-slate-700 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
-        CSV Sources
-      </div>
-      <div class="text-xs text-slate-400 mt-1.5">12 files · 3 authorities</div>
+  <p class="text-xs uppercase tracking-widest text-slate-400 mb-4">Full pipeline</p>
+  <div class="flex items-center gap-9 overflow-x-auto pb-1">
+    <div class="flow-arrow flex-shrink-0 text-center">
+      <div class="bg-indigo-600 text-white rounded-lg px-3 py-2.5 text-xs font-bold shadow-sm">① Ontology</div>
+      <div class="text-xs text-slate-400 mt-1">income_ontology.ttl</div>
     </div>
-
-    <div class="arrow flex-shrink-0 text-center" style="margin-left:8px">
-      <div class="bg-amber-500 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
-        JSON Mappings
-      </div>
-      <div class="text-xs text-slate-400 mt-1.5">6 concept files · src/mappings/</div>
+    <div class="flow-arrow flex-shrink-0 text-center">
+      <div class="bg-violet-600 text-white rounded-lg px-3 py-2.5 text-xs font-bold shadow-sm">② Model</div>
+      <div class="text-xs text-slate-400 mt-1">src/models/</div>
     </div>
-
-    <div class="arrow flex-shrink-0 text-center" style="margin-left:8px">
-      <div class="bg-teal-600 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
-        Python Transforms
-      </div>
-      <div class="text-xs text-slate-400 mt-1.5">6 transformers · src/transform/</div>
+    <div class="flow-arrow flex-shrink-0 text-center">
+      <div class="bg-blue-600 text-white rounded-lg px-3 py-2.5 text-xs font-bold shadow-sm">③ Reasoner</div>
+      <div class="text-xs text-slate-400 mt-1">src/reasoner/</div>
     </div>
-
-    <div class="arrow flex-shrink-0 text-center" style="margin-left:8px">
-      <div class="bg-violet-600 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
-        Pydantic Models
-      </div>
-      <div class="text-xs text-slate-400 mt-1.5">6 schemas · src/models/</div>
+    <div class="flow-arrow flex-shrink-0 text-center">
+      <div class="bg-amber-500 text-white rounded-lg px-3 py-2.5 text-xs font-bold shadow-sm">④ Mapping</div>
+      <div class="text-xs text-slate-400 mt-1">src/mappings/</div>
     </div>
-
-    <div class="flex-shrink-0 text-center" style="margin-left:8px">
-      <div class="bg-rose-500 text-white rounded-lg px-4 py-3 text-sm font-semibold shadow-sm">
-        FastAPI
-      </div>
-      <div class="text-xs text-slate-400 mt-1.5">POST /api/test-pipeline</div>
+    <div class="flow-arrow flex-shrink-0 text-center">
+      <div class="bg-teal-600 text-white rounded-lg px-3 py-2.5 text-xs font-bold shadow-sm">⑤ Transform</div>
+      <div class="text-xs text-slate-400 mt-1">src/transform/</div>
     </div>
-
+    <div class="flex-shrink-0 text-center">
+      <div class="bg-emerald-600 text-white rounded-lg px-3 py-2.5 text-xs font-bold shadow-sm">⑥ Result</div>
+      <div class="text-xs text-slate-400 mt-1">interpretation</div>
+    </div>
   </div>
 </section>
 
-<!-- ── Main content ──────────────────────────────────────── -->
-<main class="flex gap-0 h-full">
-
-  <!-- Concept sidebar -->
-  <aside class="w-52 flex-shrink-0 bg-white border-r border-slate-200 pt-4" style="min-height:calc(100vh - 140px)">
+<!-- Main -->
+<main class="flex">
+  <!-- Sidebar -->
+  <aside class="w-52 flex-shrink-0 bg-white border-r border-slate-200 pt-4" style="min-height:calc(100vh - 144px)">
     <p class="text-xs uppercase tracking-widest text-slate-400 px-4 mb-2">Concepts</p>
     <div id="concept-nav" class="flex flex-col gap-0.5 px-2"></div>
-
     <p class="text-xs uppercase tracking-widest text-slate-400 px-4 mt-6 mb-2">Sources</p>
-    <div id="source-nav" class="flex flex-col gap-0.5 px-2"></div>
-
+    <div class="px-2">
+      <button class="nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition" data-section="sources" onclick="selectSources()">All 12 CSV files</button>
+    </div>
     <p class="text-xs uppercase tracking-widest text-slate-400 px-4 mt-6 mb-2">API</p>
     <div class="px-2">
-      <button onclick="selectSection('api')"
-        class="nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition"
-        data-section="api">
-        /api/test-pipeline
-      </button>
+      <button class="nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition" data-section="api" onclick="selectAPI()">/api/test-pipeline</button>
     </div>
   </aside>
 
   <!-- Detail panel -->
-  <div class="flex-1 overflow-auto p-8" style="min-height:calc(100vh - 140px)">
+  <div class="flex-1 p-8 overflow-auto" style="min-height:calc(100vh - 144px)">
     <div id="detail-panel"></div>
   </div>
-
 </main>
 
 <script>
-// ─── DATA ─────────────────────────────────────────────────────────────────
+// ── DATA ─────────────────────────────────────────────────────────────────────
 
-const SOURCES = [
-  { file: "af_activity_report.csv",        authority: "AF",  description: "Activity report entries for job seekers" },
-  { file: "af_benefit_type_decision.csv",   authority: "AF",  description: "AF benefit type decisions with scope and period" },
-  { file: "af_job_seeker_status.csv",       authority: "AF",  description: "Job seeker registration status and category" },
-  { file: "csn_applied_period.csv",         authority: "CSN", description: "Study aid application periods (CompactDate format)" },
-  { file: "csn_approved_amounts.csv",       authority: "CSN", description: "Approved weekly/total amounts by type (GRUNDB/GRUNDL)" },
-  { file: "csn_approved_period.csv",        authority: "CSN", description: "Approved study period with study pace (YearWeek format)" },
-  { file: "csn_grant_decision.csv",         authority: "CSN", description: "Grant decisions with period and grant code" },
-  { file: "csn_study_support_case.csv",     authority: "CSN", description: "Study support case type and form description" },
-  { file: "fk_activity_support_details.csv",authority: "FK",  description: "Activity support detail records" },
-  { file: "fk_case.csv",                    authority: "FK",  description: "FK cases with benefit group code and opened date" },
-  { file: "fk_payment.csv",                 authority: "FK",  description: "Monthly gross/net payments per benefit type" },
-  { file: "fk_period_benefit_decision.csv", authority: "FK",  description: "Period benefit decisions with amount and scope" },
-];
+const STAGE_STYLES = {
+  ontology:  { bg: 'bg-indigo-50', border: 'border-indigo-200', badge: 'bg-indigo-100 text-indigo-700', btn: 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200',  divider: 'border-indigo-200' },
+  model:     { bg: 'bg-violet-50', border: 'border-violet-200', badge: 'bg-violet-100 text-violet-700', btn: 'bg-violet-100 text-violet-700 hover:bg-violet-200',  divider: 'border-violet-200' },
+  reasoner:  { bg: 'bg-blue-50',   border: 'border-blue-200',   badge: 'bg-blue-100 text-blue-700',     btn: 'bg-blue-100 text-blue-700 hover:bg-blue-200',        divider: 'border-blue-200' },
+  mapping:   { bg: 'bg-amber-50',  border: 'border-amber-200',  badge: 'bg-amber-100 text-amber-700',   btn: 'bg-amber-100 text-amber-700 hover:bg-amber-200',     divider: 'border-amber-200' },
+  transform: { bg: 'bg-teal-50',   border: 'border-teal-200',   badge: 'bg-teal-100 text-teal-700',     btn: 'bg-teal-100 text-teal-700 hover:bg-teal-200',        divider: 'border-teal-200' },
+  result:    { bg: 'bg-emerald-50',border: 'border-emerald-200',badge: 'bg-emerald-100 text-emerald-700',btn: 'bg-emerald-600 text-white hover:bg-emerald-700',     divider: 'border-emerald-200' },
+};
 
-const CONCEPTS = {
-  SupportType: {
-    color: "violet",
-    ontologyIRI: "http://uva.thesis/ontologies/income#supportType",
-    mappingFile: "src/mappings/support_type.json",
-    transformFile: "src/transform/support_type.py",
-    modelFile: "src/models/support_type.py",
-    description: "Maps source fields indicating the legal or administrative category of financial support to ontology-level support types.",
-    enums: {
-      SupportTypeValue: ["ActivitySupport", "StudyGrant", "StudyLoan", "StudySupport"]
+const timeReasoningTrace = {
+  summary: {
+    inspected_columns: 13,
+    accepted_time_fields: 7,
+    rejected_fields: 6,
+    period_pairs: 4,
+    threshold: 0.6,
+  },
+  fields: [
+    {
+      source_file: 'csn_approved_period.csv',
+      source_field: 'start_week',
+      sample_values: ['202617'],
+      role: 'start',
+      format: 'YearWeek',
+      final_score: 1.0,
+      decision: 'Accepted as TimeField',
+      target_concept: 'TimeField',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['week', 'start'], score_delta: 0.4, explanation: 'Column name suggests time/period information.' },
+        { step: 'Format detection', matched: true, matches: ['YearWeek'], score_delta: 0.5, explanation: 'Sample values match YYYYWW pattern.' },
+        { step: 'Negative keyword check', matched: false, matches: [], score_delta: 0, explanation: 'No non-time metadata keywords were found.' },
+        { step: 'Role inference', matched: true, matches: ['start'], score_delta: 0.1, explanation: 'The field is interpreted as the beginning of a period.' },
+      ],
     },
-    fields: [
-      { name: "support_type",      type: "SupportTypeValue", required: true },
-      { name: "source_value",      type: "str",              required: true },
-      { name: "source_description",type: "Optional[str]",    required: false },
-      { name: "source_file",       type: "str",              required: true, provenance: true },
-      { name: "source_field",      type: "str",              required: true, provenance: true },
-      { name: "source_record_id",  type: "str",              required: true, provenance: true },
-    ],
-    rules: [
-      { source_file: "af_benefit_type_decision.csv",  source_field: "benefit_type",       transformation: "benefit_type_to_support_type",      target: "ActivitySupport" },
-      { source_file: "fk_case.csv",                   source_field: "case_type",           transformation: "case_type_to_support_type",          target: "ActivitySupport" },
-      { source_file: "fk_period_benefit_decision.csv",source_field: "benefit_type",       transformation: "benefit_type_to_support_type",      target: "ActivitySupport" },
-      { source_file: "csn_study_support_case.csv",    source_field: "support_type",        transformation: "support_type_to_support_type",      target: "StudyGrant / StudyLoan (map)" },
-      { source_file: "csn_grant_decision.csv",        source_field: "decision_type",       transformation: "grant_decision_type_to_support_type",target: "StudyGrant / StudyLoan (map)" },
-      { source_file: "csn_approved_amounts.csv",      source_field: "amount_type_code",    transformation: "amount_type_code_to_support_type",   target: "StudyGrant (GRUNDB) / StudyLoan (GRUNDL)" },
-    ]
+    {
+      source_file: 'csn_approved_period.csv',
+      source_field: 'end_week',
+      sample_values: ['202627'],
+      role: 'end',
+      format: 'YearWeek',
+      final_score: 1.0,
+      decision: 'Accepted as TimeField',
+      target_concept: 'TimeField',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['week', 'end'], score_delta: 0.4, explanation: 'Column name suggests time/period information.' },
+        { step: 'Format detection', matched: true, matches: ['YearWeek'], score_delta: 0.5, explanation: 'Sample values match YYYYWW pattern.' },
+        { step: 'Negative keyword check', matched: false, matches: [], score_delta: 0, explanation: 'No non-time metadata keywords were found.' },
+        { step: 'Role inference', matched: true, matches: ['end'], score_delta: 0.1, explanation: 'The field is interpreted as the end of a period.' },
+      ],
+    },
+    {
+      source_file: 'csn_applied_period.csv',
+      source_field: 'applied_from',
+      sample_values: ['20260413'],
+      role: 'start',
+      format: 'CompactDate',
+      final_score: 1.0,
+      decision: 'Accepted as TimeField',
+      target_concept: 'TimeField',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['from'], score_delta: 0.4, explanation: 'Column name suggests a start date.' },
+        { step: 'Format detection', matched: true, matches: ['CompactDate'], score_delta: 0.5, explanation: 'Sample values match YYYYMMDD format.' },
+        { step: 'Negative keyword check', matched: false, matches: [], score_delta: 0, explanation: 'No non-time metadata keywords were found.' },
+        { step: 'Role inference', matched: true, matches: ['start'], score_delta: 0.1, explanation: 'The field is interpreted as the beginning of a period.' },
+      ],
+    },
+    {
+      source_file: 'csn_applied_period.csv',
+      source_field: 'applied_to',
+      sample_values: ['20260627'],
+      role: 'end',
+      format: 'CompactDate',
+      final_score: 1.0,
+      decision: 'Accepted as TimeField',
+      target_concept: 'TimeField',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['to'], score_delta: 0.4, explanation: 'Column name suggests an end date.' },
+        { step: 'Format detection', matched: true, matches: ['CompactDate'], score_delta: 0.5, explanation: 'Sample values match YYYYMMDD format.' },
+        { step: 'Negative keyword check', matched: false, matches: [], score_delta: 0, explanation: 'No non-time metadata keywords were found.' },
+        { step: 'Role inference', matched: true, matches: ['end'], score_delta: 0.1, explanation: 'The field is interpreted as the end of a period.' },
+      ],
+    },
+    {
+      source_file: 'af_job_seeker_status.csv',
+      source_field: 'registered_date',
+      sample_values: ['2025-09-01'],
+      role: 'start',
+      format: 'Date',
+      final_score: 1.0,
+      decision: 'Accepted as TimeField',
+      target_concept: 'TimeField',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['registered', 'date'], score_delta: 0.4, explanation: 'Column name suggests time information.' },
+        { step: 'Format detection', matched: true, matches: ['Date'], score_delta: 0.5, explanation: 'Sample values match ISO date format.' },
+        { step: 'Negative keyword check', matched: false, matches: [], score_delta: 0, explanation: 'No non-time metadata keywords were found.' },
+        { step: 'Role inference', matched: true, matches: ['start'], score_delta: 0.1, explanation: 'Registered date is interpreted as a period start.' },
+      ],
+    },
+    {
+      source_file: 'af_job_seeker_status.csv',
+      source_field: 'registered',
+      sample_values: ['false'],
+      role: null,
+      format: null,
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['registered'], score_delta: 0.4, explanation: 'Column name initially looks time-related.' },
+        { step: 'Format detection', matched: false, matches: [], score_delta: 0, explanation: 'Value is boolean-like, not a date, week, or month.' },
+        { step: 'Negative keyword check', matched: true, matches: [], score_delta: -0.5, explanation: 'The field describes status, not a temporal value.' },
+        { step: 'Role inference', matched: false, matches: ['start'], score_delta: 0.1, explanation: 'Although registered can suggest start, the total score stays below threshold.' },
+      ],
+    },
+    {
+      source_file: 'fk_payment.csv',
+      source_field: 'payment_month',
+      sample_values: ['2025-09'],
+      role: 'point_in_time',
+      format: 'YearMonth',
+      final_score: 0.9,
+      decision: 'Accepted as TimeField',
+      target_concept: 'TimeField',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['month'], score_delta: 0.4, explanation: 'Column name suggests month-level time information.' },
+        { step: 'Format detection', matched: true, matches: ['YearMonth'], score_delta: 0.5, explanation: 'Sample values match YYYY-MM format.' },
+        { step: 'Negative keyword check', matched: false, matches: [], score_delta: 0, explanation: 'No non-time metadata keywords were found.' },
+        { step: 'Role inference', matched: true, matches: ['point_in_time'], score_delta: 0, explanation: 'No start/end marker found, so this is treated as a point in time.' },
+      ],
+    },
+    {
+      source_file: 'fk_payment.csv',
+      source_field: 'gross_sek',
+      sample_values: ['9100'],
+      role: null,
+      format: null,
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'No time-related keyword found.' },
+        { step: 'Format detection', matched: false, matches: [], score_delta: 0, explanation: 'Numeric amount does not match a supported time format.' },
+        { step: 'Negative keyword check', matched: true, matches: ['sek'], score_delta: -0.5, explanation: 'Column name suggests a monetary field, not a time field.' },
+        { step: 'Role inference', matched: false, matches: ['point_in_time'], score_delta: 0, explanation: 'No temporal role can be assigned.' },
+      ],
+    },
+  ],
+  period_pairs: [
+    { source_file: 'csn_approved_period.csv', start_field: 'start_week', end_field: 'end_week', confidence: 1.0, reason: 'Both fields are in the same file, one is classified as start and the other as end, and both use YearWeek format.' },
+    { source_file: 'csn_applied_period.csv', start_field: 'applied_from', end_field: 'applied_to', confidence: 1.0, reason: 'Both fields are in the same file, one is classified as start and the other as end, and both use CompactDate format.' },
+    { source_file: 'af_job_seeker_status.csv', start_field: 'registered_date', end_field: 'deregistered_date', confidence: 1.0, reason: 'Registered/deregistered naming creates a clear lifecycle period.' },
+    { source_file: 'fk_period_benefit_decision.csv', start_field: 'decision_from', end_field: 'decision_to', confidence: 1.0, reason: 'Decision_from and decision_to are paired because they are start/end fields in the same file.' },
+  ],
+};
+
+const amountReasoningTrace = {
+  summary: {
+    inspected_columns: 12,
+    accepted_time_fields: 8,
+    rejected_fields: 4,
+    period_pairs: 0,
+    threshold: 0.6,
+  },
+  fields: [
+    {
+      source_file: 'csn_approved_amounts.csv',
+      source_field: 'amount_per_week_sek',
+      sample_values: ['978', '721'],
+      role: 'weekly_amount',
+      format: 'number/currency',
+      final_score: 1.0,
+      decision: 'Accepted as Amount signal',
+      target_concept: 'MonetaryAmount',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['amount', 'week', 'sek'], score_delta: 0.4, explanation: 'Column name suggests a weekly monetary amount.' },
+        { step: 'Value validation', matched: true, matches: ['978', '721'], score_delta: 0.3, explanation: 'Values are numeric and non-negative.' },
+        { step: 'Currency context', matched: true, matches: ['SEK'], score_delta: 0.2, explanation: 'SEK indicates Swedish currency.' },
+        { step: 'Frequency inference', matched: true, matches: ['Week'], score_delta: 0.1, explanation: 'The word week indicates weekly frequency.' },
+      ],
+    },
+    {
+      source_file: 'csn_approved_amounts.csv',
+      source_field: 'total_amount_sek',
+      sample_values: ['10758', '7931'],
+      role: 'total_amount',
+      format: 'number/currency',
+      final_score: 1.0,
+      decision: 'Accepted as Amount signal',
+      target_concept: 'MonetaryAmount',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['total', 'amount', 'sek'], score_delta: 0.4, explanation: 'Column name suggests a total monetary amount.' },
+        { step: 'Value validation', matched: true, matches: ['10758', '7931'], score_delta: 0.3, explanation: 'Values are numeric and non-negative.' },
+        { step: 'Currency context', matched: true, matches: ['SEK'], score_delta: 0.2, explanation: 'SEK indicates Swedish currency.' },
+        { step: 'Frequency inference', matched: true, matches: ['Total'], score_delta: 0.1, explanation: 'The word total indicates a total amount over a period.' },
+      ],
+    },
+    {
+      source_file: 'fk_payment.csv',
+      source_field: 'gross_sek',
+      sample_values: ['9100'],
+      role: 'monthly_gross_amount',
+      format: 'number/currency',
+      final_score: 1.0,
+      decision: 'Accepted as Amount signal',
+      target_concept: 'MonetaryAmount',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['gross', 'sek'], score_delta: 0.4, explanation: 'Column name suggests a gross monetary amount.' },
+        { step: 'Value validation', matched: true, matches: ['9100'], score_delta: 0.3, explanation: 'Value is numeric and non-negative.' },
+        { step: 'Context inference', matched: true, matches: ['gross'], score_delta: 0.2, explanation: 'Gross indicates amount before deductions.' },
+        { step: 'Frequency inference', matched: true, matches: ['Month'], score_delta: 0.1, explanation: 'FK payment records are interpreted as monthly payments.' },
+      ],
+    },
+    {
+      source_file: 'fk_payment.csv',
+      source_field: 'net_sek',
+      sample_values: ['7280'],
+      role: 'monthly_net_amount',
+      format: 'number/currency',
+      final_score: 1.0,
+      decision: 'Accepted as Amount signal',
+      target_concept: 'MonetaryAmount',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['net', 'sek'], score_delta: 0.4, explanation: 'Column name suggests a net monetary amount.' },
+        { step: 'Value validation', matched: true, matches: ['7280'], score_delta: 0.3, explanation: 'Value is numeric and non-negative.' },
+        { step: 'Context inference', matched: true, matches: ['net'], score_delta: 0.2, explanation: 'Net indicates amount after deductions.' },
+        { step: 'Frequency inference', matched: true, matches: ['Month'], score_delta: 0.1, explanation: 'FK payment records are interpreted as monthly payments.' },
+      ],
+    },
+    {
+      source_file: 'fk_period_benefit_decision.csv',
+      source_field: 'gross_amount_sek',
+      sample_values: ['36400'],
+      role: 'decision_period_gross_amount',
+      format: 'number/currency',
+      final_score: 1.0,
+      decision: 'Accepted as Amount signal',
+      target_concept: 'MonetaryAmount',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['gross', 'amount', 'sek'], score_delta: 0.4, explanation: 'Column name suggests a gross monetary amount.' },
+        { step: 'Value validation', matched: true, matches: ['36400'], score_delta: 0.3, explanation: 'Value is numeric and non-negative.' },
+        { step: 'Context inference', matched: true, matches: ['gross'], score_delta: 0.2, explanation: 'Gross indicates amount before deductions.' },
+        { step: 'Frequency inference', matched: true, matches: ['Total'], score_delta: 0.1, explanation: 'Decision-period amount is interpreted as a total amount.' },
+      ],
+    },
+    {
+      source_file: 'csn_approved_period.csv',
+      source_field: 'study_pace_pct',
+      sample_values: ['50'],
+      role: null,
+      format: 'percentage',
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'Column name does not suggest a monetary amount.' },
+        { step: 'Value validation', matched: true, matches: ['50'], score_delta: 0.1, explanation: 'Value is numeric, but numeric alone is not enough to classify it as money.' },
+        { step: 'Negative keyword check', matched: true, matches: ['pct'], score_delta: -0.5, explanation: 'Percentage fields belong to occupation scope, not monetary amount.' },
+      ],
+    },
+    {
+      source_file: 'csn_approved_period.csv',
+      source_field: 'start_week',
+      sample_values: ['202617'],
+      role: null,
+      format: 'YearWeek',
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'Column name does not suggest a monetary amount.' },
+        { step: 'Value validation', matched: false, matches: [], score_delta: 0, explanation: 'Value represents an ISO week, not currency.' },
+        { step: 'Negative keyword check', matched: true, matches: ['week'], score_delta: -0.4, explanation: 'This field belongs to TimePeriod reasoning.' },
+      ],
+    },
+  ],
+  period_pairs: [
+    {
+      source_file: 'csn_approved_amounts.csv',
+      start_field: 'amount_per_week_sek',
+      end_field: 'MonetaryAmount.frequency = Week',
+      confidence: 1.0,
+      reason: 'The field name contains amount, week, and SEK, so the value is interpreted as a weekly SEK amount.'
+    },
+    {
+      source_file: 'csn_approved_amounts.csv',
+      start_field: 'total_amount_sek',
+      end_field: 'MonetaryAmount.frequency = Total',
+      confidence: 1.0,
+      reason: 'The field name contains total_amount_sek, so the value is interpreted as a total SEK amount.'
+    },
+    {
+      source_file: 'fk_payment.csv',
+      start_field: 'gross_sek',
+      end_field: 'MonetaryAmount.context = gross',
+      confidence: 1.0,
+      reason: 'The field name contains gross and SEK, so the value is interpreted as a gross monthly amount.'
+    },
+    {
+      source_file: 'fk_payment.csv',
+      start_field: 'net_sek',
+      end_field: 'MonetaryAmount.context = net',
+      confidence: 1.0,
+      reason: 'The field name contains net and SEK, so the value is interpreted as a net monthly amount.'
+    }
+  ],
+};
+
+
+const supportReasoningTrace = {
+  summary: {
+    inspected_columns: 12,
+    accepted_time_fields: 8,
+    rejected_fields: 4,
+    period_pairs: 0,
+    threshold: 0.6,
+  },
+  fields: [
+    {
+      source_file: 'csn_study_support_case.csv',
+      source_field: 'support_type',
+      sample_values: ['student_grant'],
+      role: 'support_category',
+      format: 'string',
+      final_score: 1.0,
+      decision: 'Accepted as SupportType signal',
+      target_concept: 'SupportType',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['support', 'type'], score_delta: 0.4, explanation: 'Column name directly suggests support type information.' },
+        { step: 'Value match', matched: true, matches: ['student_grant'], score_delta: 0.4, explanation: 'Value matches known CSN study support terminology.' },
+        { step: 'Authority context', matched: true, matches: ['CSN'], score_delta: 0.2, explanation: 'CSN source files are expected to contain study grant or study loan support data.' },
+      ],
+    },
+    {
+      source_file: 'csn_approved_amounts.csv',
+      source_field: 'amount_type_code',
+      sample_values: ['GRUNDB', 'GRUNDL'],
+      role: 'support_component',
+      format: 'code',
+      final_score: 1.0,
+      decision: 'Accepted as SupportType signal',
+      target_concept: 'SupportType',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['type', 'code'], score_delta: 0.3, explanation: 'Column name suggests a coded classification.' },
+        { step: 'Code match', matched: true, matches: ['GRUNDB', 'GRUNDL'], score_delta: 0.5, explanation: 'GRUNDB maps to StudyGrant and GRUNDL maps to StudyLoan.' },
+        { step: 'Authority context', matched: true, matches: ['CSN'], score_delta: 0.2, explanation: 'CSN amount codes describe components of study support.' },
+      ],
+    },
+    {
+      source_file: 'af_benefit_type_decision.csv',
+      source_field: 'benefit_type',
+      sample_values: ['Activity support'],
+      role: 'benefit_category',
+      format: 'string',
+      final_score: 1.0,
+      decision: 'Accepted as SupportType signal',
+      target_concept: 'SupportType',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['benefit', 'type'], score_delta: 0.4, explanation: 'Column name suggests benefit classification.' },
+        { step: 'Value match', matched: true, matches: ['Activity support'], score_delta: 0.4, explanation: 'Value directly matches the ActivitySupport ontology individual.' },
+        { step: 'Authority context', matched: true, matches: ['AF'], score_delta: 0.2, explanation: 'AF benefit decisions can indicate activity support.' },
+      ],
+    },
+    {
+      source_file: 'fk_case.csv',
+      source_field: 'benefit_group_code',
+      sample_values: ['FK:AS'],
+      role: 'benefit_category',
+      format: 'code',
+      final_score: 0.9,
+      decision: 'Accepted as SupportType signal',
+      target_concept: 'SupportType',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['benefit', 'code'], score_delta: 0.3, explanation: 'Column name suggests a benefit classification code.' },
+        { step: 'Code match', matched: true, matches: ['FK:AS'], score_delta: 0.4, explanation: 'FK:AS is interpreted as activity support.' },
+        { step: 'Authority context', matched: true, matches: ['FK'], score_delta: 0.2, explanation: 'FK records can contain activity support cases and payments.' },
+      ],
+    },
+    {
+      source_file: 'fk_payment.csv',
+      source_field: 'gross_sek',
+      sample_values: ['9100'],
+      role: null,
+      format: 'number',
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'Column name does not suggest support type.' },
+        { step: 'Value match', matched: false, matches: [], score_delta: 0, explanation: 'Numeric value represents an amount, not a support category.' },
+        { step: 'Negative keyword check', matched: true, matches: ['sek'], score_delta: -0.5, explanation: 'SEK indicates a monetary amount field.' },
+      ],
+    },
+    {
+      source_file: 'af_job_seeker_status.csv',
+      source_field: 'registered_date',
+      sample_values: ['2025-09-01'],
+      role: null,
+      format: 'date',
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'Column name does not describe a support category.' },
+        { step: 'Value match', matched: false, matches: [], score_delta: 0, explanation: 'Value is a date, not a support type.' },
+        { step: 'Negative keyword check', matched: true, matches: ['date'], score_delta: -0.5, explanation: 'Date fields belong to TimePeriod reasoning instead.' },
+      ],
+    },
+  ],
+  period_pairs: [
+    {
+      source_file: 'csn_approved_amounts.csv',
+      start_field: 'GRUNDB',
+      end_field: 'StudyGrant',
+      confidence: 1.0,
+      reason: 'The amount_type_code GRUNDB is mapped to the ontology individual StudyGrant.'
+    },
+    {
+      source_file: 'csn_approved_amounts.csv',
+      start_field: 'GRUNDL',
+      end_field: 'StudyLoan',
+      confidence: 1.0,
+      reason: 'The amount_type_code GRUNDL is mapped to the ontology individual StudyLoan.'
+    },
+    {
+      source_file: 'af_benefit_type_decision.csv',
+      start_field: 'Activity support',
+      end_field: 'ActivitySupport',
+      confidence: 1.0,
+      reason: 'The raw AF benefit value directly corresponds to the ActivitySupport ontology individual.'
+    }
+  ],
+};
+
+const statusReasoningTrace = {
+  summary: {
+    inspected_columns: 9,
+    accepted_time_fields: 5,
+    rejected_fields: 4,
+    period_pairs: 0,
+    threshold: 0.6,
+  },
+  fields: [
+    {
+      source_file: 'csn_study_support_case.csv',
+      source_field: 'case_status',
+      sample_values: ['Initiated'],
+      role: 'lifecycle_status',
+      format: 'string',
+      final_score: 1.0,
+      decision: 'Accepted as Status signal',
+      target_concept: 'Status',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['status'], score_delta: 0.4, explanation: 'Column name directly indicates lifecycle status.' },
+        { step: 'Value match', matched: true, matches: ['Initiated'], score_delta: 0.4, explanation: 'Value matches the ontology status individual Initiated.' },
+        { step: 'Authority context', matched: true, matches: ['CSN'], score_delta: 0.2, explanation: 'CSN case files commonly include administrative case status.' },
+      ],
+    },
+    {
+      source_file: 'csn_grant_decision.csv',
+      source_field: 'status',
+      sample_values: ['Initiated'],
+      role: 'decision_status',
+      format: 'string',
+      final_score: 1.0,
+      decision: 'Accepted as Status signal',
+      target_concept: 'Status',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['status'], score_delta: 0.4, explanation: 'Column name directly indicates a status field.' },
+        { step: 'Value match', matched: true, matches: ['Initiated'], score_delta: 0.4, explanation: 'The value maps to the unified StatusType Initiated.' },
+        { step: 'Authority context', matched: true, matches: ['CSN'], score_delta: 0.2, explanation: 'Grant decision records can contain administrative decision status.' },
+      ],
+    },
+    {
+      source_file: 'af_job_seeker_status.csv',
+      source_field: 'registered',
+      sample_values: ['false'],
+      role: 'registration_status',
+      format: 'boolean',
+      final_score: 0.9,
+      decision: 'Accepted as Status signal',
+      target_concept: 'Status',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['registered'], score_delta: 0.3, explanation: 'Column name indicates whether the person is currently registered.' },
+        { step: 'Value interpretation', matched: true, matches: ['false'], score_delta: 0.4, explanation: 'False is interpreted as no longer active in the AF registration context.' },
+        { step: 'Authority context', matched: true, matches: ['AF'], score_delta: 0.2, explanation: 'AF registration data can indicate active or inactive job-seeker status.' },
+      ],
+    },
+    {
+      source_file: 'fk_case.csv',
+      source_field: 'active',
+      sample_values: ['0'],
+      role: 'case_activity_status',
+      format: 'boolean/integer',
+      final_score: 0.9,
+      decision: 'Accepted as Status signal',
+      target_concept: 'Status',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['active'], score_delta: 0.3, explanation: 'Column name indicates whether the case is active.' },
+        { step: 'Value interpretation', matched: true, matches: ['0'], score_delta: 0.4, explanation: '0 is interpreted as inactive.' },
+        { step: 'Authority context', matched: true, matches: ['FK'], score_delta: 0.2, explanation: 'FK case files can contain active/inactive case state.' },
+      ],
+    },
+    {
+      source_file: 'fk_period_benefit_decision.csv',
+      source_field: 'waiting_period',
+      sample_values: ['None'],
+      role: 'benefit_process_status',
+      format: 'string/null-like',
+      final_score: 0.8,
+      decision: 'Accepted as Status signal',
+      target_concept: 'Status',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['waiting', 'period'], score_delta: 0.3, explanation: 'Column name suggests process state related to waiting period.' },
+        { step: 'Value interpretation', matched: true, matches: ['None'], score_delta: 0.3, explanation: 'No waiting period indicates the benefit decision is active immediately.' },
+        { step: 'Authority context', matched: true, matches: ['FK'], score_delta: 0.2, explanation: 'FK benefit decisions may include waiting-period logic.' },
+      ],
+    },
+    {
+      source_file: 'fk_payment.csv',
+      source_field: 'gross_sek',
+      sample_values: ['9100'],
+      role: null,
+      format: 'number',
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'Column name does not suggest lifecycle state.' },
+        { step: 'Value match', matched: false, matches: [], score_delta: 0, explanation: 'Numeric monetary amount is not a status value.' },
+        { step: 'Negative keyword check', matched: true, matches: ['sek'], score_delta: -0.5, explanation: 'SEK indicates this field belongs to Amount reasoning.' },
+      ],
+    },
+    {
+      source_file: 'csn_approved_period.csv',
+      source_field: 'study_pace_pct',
+      sample_values: ['50'],
+      role: null,
+      format: 'percentage',
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'Column name does not indicate status.' },
+        { step: 'Value match', matched: false, matches: [], score_delta: 0, explanation: 'Percentage value describes study scope, not lifecycle state.' },
+        { step: 'Negative keyword check', matched: true, matches: ['pct'], score_delta: -0.5, explanation: 'Percentage fields belong to occupation or amount-related reasoning.' },
+      ],
+    },
+  ],
+  period_pairs: [
+    {
+      source_file: 'csn_study_support_case.csv',
+      start_field: 'Initiated',
+      end_field: 'Status.Initiated',
+      confidence: 1.0,
+      reason: 'The raw CSN case_status value directly maps to the unified ontology status Initiated.'
+    },
+    {
+      source_file: 'af_job_seeker_status.csv',
+      start_field: 'registered = false',
+      end_field: 'Status.Inactive',
+      confidence: 0.9,
+      reason: 'A false registration flag means the person is not currently registered, so the unified status is Inactive.'
+    },
+    {
+      source_file: 'fk_case.csv',
+      start_field: 'active = 0',
+      end_field: 'Status.Inactive',
+      confidence: 0.9,
+      reason: 'The FK active flag uses 0 to indicate that the case is not active.'
+    },
+    {
+      source_file: 'fk_period_benefit_decision.csv',
+      start_field: 'waiting_period = None',
+      end_field: 'Status.Active',
+      confidence: 0.8,
+      reason: 'No waiting period is interpreted as the benefit decision being active immediately.'
+    }
+  ],
+};
+
+const occupationReasoningTrace = {
+  summary: {
+    inspected_columns: 10,
+    accepted_time_fields: 5,
+    rejected_fields: 5,
+    period_pairs: 0,
+    threshold: 0.6,
+  },
+  fields: [
+    {
+      source_file: 'af_job_seeker_status.csv',
+      source_field: 'category',
+      sample_values: ['Openly unemployed'],
+      role: 'occupation_category',
+      format: 'string',
+      final_score: 1.0,
+      decision: 'Accepted as Occupation signal',
+      target_concept: 'Occupation',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['category'], score_delta: 0.3, explanation: 'Column name suggests a classification field.' },
+        { step: 'Value match', matched: true, matches: ['Openly unemployed'], score_delta: 0.5, explanation: 'Value indicates that the person is registered as a job seeker.' },
+        { step: 'Authority context', matched: true, matches: ['AF'], score_delta: 0.2, explanation: 'AF data is expected to contain job-seeker status and labour-market role information.' },
+      ],
+    },
+    {
+      source_file: 'csn_study_support_case.csv',
+      source_field: 'support_type',
+      sample_values: ['student_grant'],
+      role: 'student_indicator',
+      format: 'string',
+      final_score: 0.9,
+      decision: 'Accepted as Occupation signal',
+      target_concept: 'Occupation',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['support', 'type'], score_delta: 0.2, explanation: 'Column name does not directly name occupation, but suggests study-support context.' },
+        { step: 'Value match', matched: true, matches: ['student_grant'], score_delta: 0.5, explanation: 'Student grant indicates that the person is acting in a student role.' },
+        { step: 'Authority context', matched: true, matches: ['CSN'], score_delta: 0.2, explanation: 'CSN data is associated with study finance and student status.' },
+      ],
+    },
+    {
+      source_file: 'csn_grant_decision.csv',
+      source_field: 'scope_pct',
+      sample_values: ['50'],
+      role: 'occupation_scope',
+      format: 'percentage',
+      final_score: 0.8,
+      decision: 'Accepted as Occupation scope signal',
+      target_concept: 'Occupation',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['scope', 'pct'], score_delta: 0.3, explanation: 'Column name suggests a percentage scope.' },
+        { step: 'Value validation', matched: true, matches: ['50'], score_delta: 0.3, explanation: 'Value is a valid percentage between 0 and 100.' },
+        { step: 'Authority context', matched: true, matches: ['CSN'], score_delta: 0.2, explanation: 'In CSN data, scope percentage can represent study pace.' },
+      ],
+    },
+    {
+      source_file: 'csn_approved_period.csv',
+      source_field: 'study_pace_pct',
+      sample_values: ['50'],
+      role: 'occupation_scope',
+      format: 'percentage',
+      final_score: 1.0,
+      decision: 'Accepted as Occupation scope signal',
+      target_concept: 'Occupation',
+      checks: [
+        { step: 'Keyword match', matched: true, matches: ['study', 'pace', 'pct'], score_delta: 0.4, explanation: 'Column name directly suggests study pace.' },
+        { step: 'Value validation', matched: true, matches: ['50'], score_delta: 0.3, explanation: 'Value is a valid percentage.' },
+        { step: 'Authority context', matched: true, matches: ['CSN'], score_delta: 0.3, explanation: 'CSN approved period records can indicate study pace.' },
+      ],
+    },
+    {
+      source_file: 'fk_payment.csv',
+      source_field: 'gross_sek',
+      sample_values: ['9100'],
+      role: null,
+      format: 'number',
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'Column name does not suggest occupation.' },
+        { step: 'Value match', matched: false, matches: [], score_delta: 0, explanation: 'Numeric value represents money, not an occupation.' },
+        { step: 'Negative keyword check', matched: true, matches: ['sek'], score_delta: -0.5, explanation: 'SEK indicates a monetary amount field.' },
+      ],
+    },
+    {
+      source_file: 'af_job_seeker_status.csv',
+      source_field: 'registered_date',
+      sample_values: ['2025-09-01'],
+      role: null,
+      format: 'date',
+      final_score: 0.0,
+      decision: 'Rejected',
+      target_concept: null,
+      checks: [
+        { step: 'Keyword match', matched: false, matches: [], score_delta: 0, explanation: 'Column name does not describe occupation type.' },
+        { step: 'Value match', matched: false, matches: [], score_delta: 0, explanation: 'Date value belongs to time-period reasoning.' },
+        { step: 'Negative keyword check', matched: true, matches: ['date'], score_delta: -0.5, explanation: 'Date fields are not occupation fields.' },
+      ],
+    },
+  ],
+  period_pairs: [
+    {
+      source_file: 'af_job_seeker_status.csv',
+      start_field: 'Openly unemployed',
+      end_field: 'JobSeeker',
+      confidence: 1.0,
+      reason: 'The raw AF category value is classified as the ontology occupation individual JobSeeker.'
+    },
+    {
+      source_file: 'csn_study_support_case.csv',
+      start_field: 'student_grant',
+      end_field: 'Student',
+      confidence: 0.9,
+      reason: 'Receiving student grant support is interpreted as evidence of a student role.'
+    },
+    {
+      source_file: 'csn_approved_period.csv',
+      start_field: 'study_pace_pct = 50',
+      end_field: 'Student scope 50%',
+      confidence: 1.0,
+      reason: 'Study pace percentage is used to enrich the Student occupation instance with a 50% scope.'
+    }
+  ],
+};
+
+
+const PIPELINE = {
+
+  SupportType: {
+    ontologyIRI: 'http://uva.thesis/ontologies/income#SupportType',
+    description: 'Maps source fields indicating the legal or administrative category of financial support to ontology-level support types.',
+    stages: {
+      ontology: {
+        label: 'Ontology', file: 'mapping_copilot/ontology/income_ontology.ttl',
+        description: 'Defines SupportType as an OWL class with named individuals for each allowed support category.',
+        outputType: 'json',
+        output: { class: 'SupportType', iri: 'http://uva.thesis/ontologies/income#SupportType', type: 'owl:Class', linkedProperty: { name: 'supportType', kind: 'owl:ObjectProperty', domain: 'Income', range: 'SupportType' }, namedIndividuals: [ { name: 'ActivitySupport', label: 'Aktivitetsstöd (AF/FK)' }, { name: 'StudyGrant', label: 'Bidrag / StudyGrant (CSN GRUNDB)' }, { name: 'StudyLoan', label: 'Lån / StudyLoan (CSN GRUNDL)' }, { name: 'StudySupport', label: 'Studiemedel — general category' } ] }
+      },
+      model: {
+        label: 'Model', file: 'src/models/support_type.py',
+        description: 'Pydantic schema derived from the ontology class. Adds provenance fields so every instance traces back to a specific CSV row.',
+        outputType: 'code',
+        output: `class SupportTypeValue(str, Enum):
+    ACTIVITY_SUPPORT = "ActivitySupport"
+    STUDENT_GRANT    = "StudyGrant"
+    STUDENT_LOAN     = "StudyLoan"
+    STUDY_SUPPORT    = "StudySupport"
+
+
+class SupportType(BaseModel):
+    # Ontology concept (required)
+    support_type:        SupportTypeValue
+
+    # Source explanation
+    source_value:        str
+    source_description:  Optional[str] = None
+
+    # Provenance — traces back to the exact row in the CSV
+    source_file:         str
+    source_field:        str
+    source_record_id:    str`
+      },
+      reasoner: {
+  label: 'Reasoner', file: 'src/reasoner/support_type_reasoner.py',
+  description: "Shows the internal rule trace: keyword matches, source-value matches, authority context, rejected fields, and support-type classification logic.",
+  outputType: 'reasoningTrace',
+  output: supportReasoningTrace
+},
+      mapping: {
+        label: 'Mapping', file: 'src/mappings/support_type.json',
+        description: 'Declarative rules written based on reasoner findings — maps each raw source value to its ontology-level target.',
+        outputType: 'table',
+        output: { headers: ['Source file', 'Source field', 'Transformation', '→ Target'], rows: [
+          ['af_benefit_type_decision.csv',  'benefit_type',      'benefit_type_to_support_type',      'ActivitySupport'],
+          ['fk_case.csv',                   'case_type',         'case_type_to_support_type',          'ActivitySupport'],
+          ['fk_period_benefit_decision.csv','benefit_type',      'benefit_type_to_support_type',      'ActivitySupport'],
+          ['csn_study_support_case.csv',    'support_type',      'support_type_to_support_type',      'StudyGrant / StudyLoan (map)'],
+          ['csn_grant_decision.csv',        'decision_type',     'grant_decision_to_support_type',    'StudyGrant / StudyLoan (map)'],
+          ['csn_approved_amounts.csv',      'amount_type_code',  'amount_type_code_to_support_type',  'GRUNDB → StudyGrant · GRUNDL → StudyLoan'],
+        ]}
+      },
+      transform: {
+        label: 'Transform', file: 'src/transform/support_type.py',
+        description: "Applies mapping rules to Jane's CSV rows and produces typed SupportType model instances.",
+        outputType: 'json',
+        output: [
+          { support_type: 'StudyGrant', source_value: 'student_grant', source_description: 'Student finance for studies in Sweden', source_file: 'csn_study_support_case.csv', source_field: 'support_type', source_record_id: 'row0' },
+          { support_type: 'StudyGrant', source_value: 'Grant',         source_description: null, source_file: 'csn_grant_decision.csv', source_field: 'decision_type', source_record_id: 'row0' },
+          { support_type: 'StudyGrant', source_value: 'GRUNDB',        source_description: 'Grant', source_file: 'csn_approved_amounts.csv', source_field: 'amount_type_code', source_record_id: 'row0' },
+          { support_type: 'StudyLoan',  source_value: 'GRUNDL',        source_description: 'Loan',  source_file: 'csn_approved_amounts.csv', source_field: 'amount_type_code', source_record_id: 'row1' },
+        ]
+      },
+      result: {
+        label: 'Interpretation', file: null,
+        description: "Human-readable summary of what this concept resolved to for Jane.",
+        outputType: 'prose',
+        output: "Jane's income support spans two distinct support types: study finance from CSN (StudyGrant + StudyLoan) for spring 2026, and activity support from both AF and FK during autumn 2025. The transformation produced 4 typed SupportType instances — 3 classified as StudyGrant and 1 as StudyLoan — all with full provenance linking back to their source CSV rows."
+      }
+    }
   },
 
   Amount: {
-    color: "amber",
-    ontologyIRI: "http://uva.thesis/ontologies/income#amount",
-    mappingFile: "src/mappings/amount.json",
-    transformFile: "src/transform/amount.py",
-    modelFile: "src/models/amount.py",
-    description: "Maps monetary value fields from source files to the Amount concept (MonetaryAmount), capturing frequency and gross/net context.",
-    enums: {
-      Frequency:     ["Week", "Month", "Total"],
-      ValueContext:  ["gross", "net"],
-    },
-    fields: [
-      { name: "value",             type: "Decimal",           required: true },
-      { name: "currency",          type: "str",               required: true, default: "SEK" },
-      { name: "frequency",         type: "Frequency",         required: true },
-      { name: "context",           type: "Optional[ValueContext]", required: false },
-      { name: "source_file",       type: "str",               required: true, provenance: true },
-      { name: "source_field",      type: "str",               required: true, provenance: true },
-      { name: "source_record_id",  type: "str",               required: true, provenance: true },
-    ],
-    rules: [
-      { source_file: "fk_payment.csv",                source_field: "net_sek",            transformation: "identity", target: "SEK · Month · net" },
-      { source_file: "fk_payment.csv",                source_field: "gross_sek",          transformation: "identity", target: "SEK · Month · gross" },
-      { source_file: "fk_period_benefit_decision.csv",source_field: "gross_amount_sek",   transformation: "identity", target: "SEK · Total · gross" },
-      { source_file: "csn_approved_amounts.csv",      source_field: "amount_per_week_sek",transformation: "identity", target: "SEK · Week · gross" },
-      { source_file: "csn_approved_amounts.csv",      source_field: "total_amount_sek",   transformation: "identity", target: "SEK · Total · gross" },
-      { source_file: "csn_approved_period.csv",       source_field: "total_amount_sek",   transformation: "identity", target: "SEK · Total · gross" },
-    ]
+    ontologyIRI: 'http://uva.thesis/ontologies/income#MonetaryAmount',
+    description: 'Maps monetary value fields to the Amount concept, capturing frequency (Week/Month/Total) and gross/net context explicitly.',
+    stages: {
+      ontology: {
+        label: 'Ontology', file: 'mapping_copilot/ontology/income_ontology.ttl',
+        description: 'Defines MonetaryAmount as an OWL class with data properties for value, currency, and frequency.',
+        outputType: 'json',
+        output: { class: 'MonetaryAmount', iri: 'http://uva.thesis/ontologies/income#MonetaryAmount', type: 'owl:Class', dataProperties: [ { name: 'value', range: 'xsd:decimal' }, { name: 'currency', range: 'xsd:string' } ], objectProperties: [ { name: 'frequency', range: 'Frequency', individuals: ['Week', 'Month', 'Total'] } ], note: 'gross/net context is not yet in the ontology — proposed extension in ValueContext enum' }
+      },
+      model: {
+        label: 'Model', file: 'src/models/amount.py',
+        description: 'Pydantic schema adding explicit frequency and gross/net context — both left implicit in source CSVs.',
+        outputType: 'code',
+        output: `class Frequency(str, Enum):
+    WEEK  = "Week"
+    MONTH = "Month"
+    TOTAL = "Total"
+
+class ValueContext(str, Enum):   # proposed ontology extension
+    GROSS = "gross"
+    NET   = "net"
+
+class MonetaryAmount(BaseModel):
+    value:     Decimal
+    currency:  str = "SEK"
+    frequency: Frequency
+    context:   Optional[ValueContext] = None
+
+    # Provenance
+    source_file:      str
+    source_field:     str
+    source_record_id: str
+
+    @field_validator("value")
+    def value_must_be_non_negative(cls, v):
+        if v < 0: raise ValueError("cannot be negative")
+        return v`
+      },
+      reasoner: {
+  label: 'Reasoner', file: 'src/reasoner/amount.py',
+  description: "Shows the internal rule trace: amount keywords, numeric validation, currency detection, gross/net context inference, frequency inference, rejected fields, and amount classification logic.",
+  outputType: 'reasoningTrace',
+  output: amountReasoningTrace
+},
+      mapping: {
+        label: 'Mapping', file: 'src/mappings/amount.json',
+        description: 'Rules written to make frequency and context explicit for each monetary field found by the reasoner.',
+        outputType: 'table',
+        output: { headers: ['Source file', 'Field', 'Frequency', 'Context', 'Rationale'], rows: [
+          ['csn_approved_amounts.csv',      'amount_per_week_sek', 'Week',  'gross', 'CSN denominates per ISO week'],
+          ['csn_approved_amounts.csv',      'total_amount_sek',    'Total', 'gross', 'Precomputed total per amount type'],
+          ['csn_approved_period.csv',       'total_amount_sek',    'Total', 'gross', 'Combined GRUNDB+GRUNDL total'],
+          ['fk_payment.csv',                'net_sek',             'Month', 'net',   'Amount received after tax'],
+          ['fk_payment.csv',                'gross_sek',           'Month', 'gross', 'Gross before tax withholding'],
+          ['fk_period_benefit_decision.csv','gross_amount_sek',    'Total', 'gross', 'Gross total for decision period'],
+        ]}
+      },
+      transform: {
+        label: 'Transform', file: 'src/transform/amount.py',
+        description: "Applies mapping rules and produces typed MonetaryAmount instances for Jane.",
+        outputType: 'json',
+        output: [
+          { value: 978,   currency: 'SEK', frequency: 'Week',  context: 'gross', source_file: 'csn_approved_amounts.csv', source_field: 'amount_per_week_sek', source_record_id: 'row0' },
+          { value: 10758, currency: 'SEK', frequency: 'Total', context: 'gross', source_file: 'csn_approved_amounts.csv', source_field: 'total_amount_sek',    source_record_id: 'row0' },
+          { value: 721,   currency: 'SEK', frequency: 'Week',  context: 'gross', source_file: 'csn_approved_amounts.csv', source_field: 'amount_per_week_sek', source_record_id: 'row1' },
+          { value: 7931,  currency: 'SEK', frequency: 'Total', context: 'gross', source_file: 'csn_approved_amounts.csv', source_field: 'total_amount_sek',    source_record_id: 'row1' },
+          { value: 9100,  currency: 'SEK', frequency: 'Month', context: 'gross', source_file: 'fk_payment.csv',          source_field: 'gross_sek',           source_record_id: 'row0' },
+          { value: 7280,  currency: 'SEK', frequency: 'Month', context: 'net',   source_file: 'fk_payment.csv',          source_field: 'net_sek',             source_record_id: 'row0' },
+        ]
+      },
+      result: {
+        label: 'Interpretation', file: null,
+        description: "Human-readable summary of the amounts resolved for Jane.",
+        outputType: 'prose',
+        output: "Jane received activity support from FK at 9,100 SEK/month gross (7,280 SEK net) during autumn 2025 — three monthly payments totalling 27,300 SEK gross. For spring 2026, CSN approved study finance totalling 18,689 SEK: a weekly grant of 978 SEK (10,758 SEK total) and a weekly loan of 721 SEK (7,931 SEK total)."
+      }
+    }
   },
 
   TimePeriod: {
-    color: "sky",
-    ontologyIRI: "http://uva.thesis/ontologies/income#timePeriod",
-    mappingFile: "src/mappings/period.json",
-    transformFile: "src/transform/period.py",
-    modelFile: "src/models/period.py",
-    description: "Maps start/end date fields from source files to the TimePeriod concept, normalising three different date formats across authorities.",
-    enums: {
-      TimeFormat: ["Date (YYYY-MM-DD)", "CompactDate (YYYYMMDD)", "YearWeek (YYYYWW)"]
-    },
-    fields: [
-      { name: "start_date",         type: "date",              required: true },
-      { name: "end_date",           type: "Optional[date]",    required: false },
-      { name: "source_format",      type: "TimeFormat",        required: true },
-      { name: "source_file",        type: "str",               required: true, provenance: true },
-      { name: "source_start_field", type: "str",               required: true, provenance: true },
-      { name: "source_end_field",   type: "Optional[str]",     required: false, provenance: true },
-      { name: "source_record_id",   type: "str",               required: true, provenance: true },
-    ],
-    rules: [
-      { source_file: "af_job_seeker_status.csv",      source_field: "registered_date / deregistered_date", transformation: "start_end_pair",           target: "Date format" },
-      { source_file: "af_benefit_type_decision.csv",  source_field: "decision_from / decision_to",         transformation: "start_end_pair",           target: "Date format" },
-      { source_file: "csn_applied_period.csv",        source_field: "applied_from / applied_to",           transformation: "start_end_pair",           target: "CompactDate format" },
-      { source_file: "csn_approved_period.csv",       source_field: "start_week / end_week",               transformation: "week_pair_to_date_period",  target: "YearWeek → date" },
-      { source_file: "csn_grant_decision.csv",        source_field: "period_start_week / period_end_week", transformation: "week_pair_to_date_period",  target: "YearWeek → date" },
-      { source_file: "fk_case.csv",                   source_field: "opened_date",                         transformation: "open_start_date",           target: "Date · open-ended" },
-      { source_file: "fk_period_benefit_decision.csv",source_field: "decision_from / decision_to",         transformation: "start_end_pair",           target: "Date format" },
-    ]
+    ontologyIRI: 'http://uva.thesis/ontologies/income#TimePeriod',
+    description: 'Maps start/end date fields from source files to the TimePeriod concept, normalising three different date formats across authorities.',
+    stages: {
+      ontology: {
+        label: 'Ontology', file: 'mapping_copilot/ontology/income_ontology.ttl',
+        description: 'Defines TimePeriod as an OWL class with startDate and endDate data properties.',
+        outputType: 'json',
+        output: { class: 'TimePeriod', iri: 'http://uva.thesis/ontologies/income#TimePeriod', type: 'owl:Class', dataProperties: [ { name: 'startDate', range: 'xsd:date' }, { name: 'endDate', range: 'xsd:date', note: 'optional — open-ended periods allowed' } ] }
+      },
+      model: {
+        label: 'Model', file: 'src/models/period.py',
+        description: 'Pydantic schema adding source_format to handle three date encodings found in the CSVs.',
+        outputType: 'code',
+        output: `class TimeFormat(str, Enum):
+    DATE         = "Date"         # YYYY-MM-DD  (AF, FK)
+    COMPACT_DATE = "CompactDate"  # YYYYMMDD    (CSN applied)
+    YEAR_WEEK    = "YearWeek"     # YYYYWW      (CSN approved)
+
+class TimePeriod(BaseModel):
+    start_date:   date
+    end_date:     Optional[date] = None   # None = open-ended
+    source_format: TimeFormat
+
+    # Provenance
+    source_file:        str
+    source_start_field: str
+    source_end_field:   Optional[str] = None
+    source_record_id:   str
+
+    @model_validator(mode="after")
+    def end_must_not_be_before_start(self):
+        if self.end_date and self.end_date < self.start_date:
+            raise ValueError("end_date before start_date")
+        return self`
+      },
+      reasoner: {
+  label: 'Reasoner', file: 'src/reasoner/period.py',
+  description: "Shows the internal rule trace: keyword matches, format detection, penalties, score calculation, accepted/rejected fields, and period-pairing logic.",
+  outputType: 'reasoningTrace',
+  output: timeReasoningTrace
+},
+      mapping: {
+        label: 'Mapping', file: 'src/mappings/period.json',
+        description: 'One rule per start/end pair — specifies the transformation needed to normalise each format to calendar dates.',
+        outputType: 'table',
+        output: { headers: ['Source file', 'Transformation', 'Format', 'Rationale'], rows: [
+          ['af_job_seeker_status.csv',      'start_end_pair',          'Date',        'Standard YYYY-MM-DD'],
+          ['af_benefit_type_decision.csv',  'start_end_pair',          'Date',        'Standard YYYY-MM-DD'],
+          ['csn_applied_period.csv',        'start_end_pair',          'CompactDate', 'CSN uses YYYYMMDD'],
+          ['csn_approved_period.csv',       'week_pair_to_date_period','YearWeek',    'CSN uses YYYYWW ISO weeks'],
+          ['csn_grant_decision.csv',        'week_pair_to_date_period','YearWeek',    'Derived from approved period'],
+          ['fk_case.csv',                   'open_start_date',         'Date',        'No closing date in source'],
+          ['fk_period_benefit_decision.csv','start_end_pair',          'Date',        'Standard YYYY-MM-DD'],
+        ]}
+      },
+      transform: {
+        label: 'Transform', file: 'src/transform/period.py',
+        description: "Normalises all date formats to calendar dates and produces typed TimePeriod instances for Jane.",
+        outputType: 'json',
+        output: [
+          { start_date: '2026-04-20', end_date: '2026-07-06', source_format: 'YearWeek',    source_file: 'csn_approved_period.csv',       source_start_field: 'start_week',        source_end_field: 'end_week',          source_record_id: 'row0' },
+          { start_date: '2026-04-20', end_date: '2026-07-06', source_format: 'YearWeek',    source_file: 'csn_grant_decision.csv',         source_start_field: 'period_start_week', source_end_field: 'period_end_week',   source_record_id: 'row0' },
+          { start_date: '2026-04-13', end_date: '2026-06-27', source_format: 'CompactDate', source_file: 'csn_applied_period.csv',         source_start_field: 'applied_from',      source_end_field: 'applied_to',        source_record_id: 'row0' },
+          { start_date: '2025-09-01', end_date: '2025-12-31', source_format: 'Date',        source_file: 'af_job_seeker_status.csv',       source_start_field: 'registered_date',   source_end_field: 'deregistered_date', source_record_id: 'row0' },
+          { start_date: '2025-09-01', end_date: '2025-12-31', source_format: 'Date',        source_file: 'af_benefit_type_decision.csv',   source_start_field: 'decision_from',     source_end_field: 'decision_to',       source_record_id: 'row0' },
+          { start_date: '2025-09-01', end_date: null,          source_format: 'Date',        source_file: 'fk_case.csv',                    source_start_field: 'opened_date',       source_end_field: null,                source_record_id: 'row0' },
+          { start_date: '2025-09-01', end_date: '2025-12-31', source_format: 'Date',        source_file: 'fk_period_benefit_decision.csv', source_start_field: 'decision_from',     source_end_field: 'decision_to',       source_record_id: 'row0' },
+        ]
+      },
+      result: {
+        label: 'Interpretation', file: null,
+        description: "Human-readable summary of the time periods resolved for Jane.",
+        outputType: 'prose',
+        output: "Jane's records cover two non-overlapping time windows: AF and FK activity support running from 1 September to 31 December 2025, followed by CSN study support in spring 2026 (week 17–27, 20 April to 6 July). The CSN dates arrive as ISO year-week codes in the source and are normalised to calendar dates during transformation."
+      }
+    }
   },
 
   Person: {
-    color: "green",
-    ontologyIRI: "http://uva.thesis/ontologies/income#person",
-    mappingFile: "src/mappings/person.json",
-    transformFile: "src/transform/person.py",
-    modelFile: "src/models/person.py",
-    description: "Maps the shared personal identifier used across all source files to the Person concept. Intentionally minimal — exists to link records across AF, FK, and CSN.",
-    enums: {},
-    fields: [
-      { name: "person_id", type: "str", required: true },
-    ],
-    rules: [
-      { source_file: "* (all 12 files)", source_field: "personal_id", transformation: "personal_id_to_person", target: "Person.personId" },
-    ]
+    ontologyIRI: 'http://uva.thesis/ontologies/income#Person',
+    description: 'Maps the shared personal identifier across all source files to the Person concept. Intentionally minimal — exists only to link records across AF, FK, and CSN.',
+    stages: {
+      ontology: {
+        label: 'Ontology', file: 'mapping_copilot/ontology/income_ontology.ttl',
+        description: 'Defines Person as a minimal OWL class with a single identifying property.',
+        outputType: 'json',
+        output: { class: 'Person', iri: 'http://uva.thesis/ontologies/income#Person', type: 'owl:Class', dataProperties: [ { name: 'personId', range: 'xsd:string', note: 'Shared identifier used as join key across all authorities' } ], designNote: 'Person is intentionally minimal — all income attributes belong to related concepts, not Person itself' }
+      },
+      model: {
+        label: 'Model', file: 'src/models/person.py',
+        description: 'Minimal Pydantic schema — just an ID with a non-empty validator.',
+        outputType: 'code',
+        output: `class Person(BaseModel):
+    """
+    A unified person identity shared across AF, FK, and CSN.
+    Intentionally minimal — exists to make cross-authority
+    record linking explicit.
+    """
+    person_id: str = Field(..., description="Stable join key")
+
+    @field_validator("person_id")
+    def person_id_must_not_be_empty(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("person_id cannot be empty")
+        return value`
+      },
+      reasoner: {
+        label: 'Reasoner', file: 'src/reasoner/person.py',
+        description: 'Verifies that personal_id is present and consistent across all source files.',
+        outputType: 'table',
+        output: { headers: ['File', 'Field', 'Value for Jane', 'Present?'], rows: [
+          ['af_activity_report.csv',         'personal_id', '20000421-1234', '✓'],
+          ['af_benefit_type_decision.csv',   'personal_id', '20000421-1234', '✓'],
+          ['af_job_seeker_status.csv',        'personal_id', '20000421-1234', '✓'],
+          ['csn_applied_period.csv',          'personal_id', '20000421-1234', '✓'],
+          ['csn_approved_amounts.csv',        'personal_id', '20000421-1234', '✓'],
+          ['csn_approved_period.csv',         'personal_id', '20000421-1234', '✓'],
+          ['csn_grant_decision.csv',          'personal_id', '20000421-1234', '✓'],
+          ['csn_study_support_case.csv',      'personal_id', '20000421-1234', '✓'],
+          ['fk_case.csv',                     'personal_id', '20000421-1234', '✓'],
+          ['fk_payment.csv',                  'personal_id', '20000421-1234', '✓'],
+          ['fk_period_benefit_decision.csv',  'personal_id', '20000421-1234', '✓'],
+        ]}
+      },
+      mapping: {
+        label: 'Mapping', file: 'src/mappings/person.json',
+        description: 'Single universal rule — personal_id maps to Person.personId across all source files.',
+        outputType: 'table',
+        output: { headers: ['Source file', 'Source field', 'Transformation', '→ Target'], rows: [
+          ['* (all 12 files)', 'personal_id', 'personal_id_to_person', 'Person.personId'],
+        ]}
+      },
+      transform: {
+        label: 'Transform', file: 'src/transform/person.py',
+        description: 'Produces a single Person instance shared as the linking identity across all concepts.',
+        outputType: 'json',
+        output: { person_id: '20000421-1234' }
+      },
+      result: {
+        label: 'Interpretation', file: null,
+        description: "Human-readable summary for Person.",
+        outputType: 'prose',
+        output: "Jane is uniquely identified by personal ID 20000421-1234, which appears consistently across all 12 source files from AF, FK, and CSN. This single shared key enables cross-authority record linkage — all income events, decisions, and payments in the unified view belong to the same individual without any ambiguity."
+      }
+    }
   },
 
   Status: {
-    color: "rose",
-    ontologyIRI: "http://uva.thesis/ontologies/income#status",
-    mappingFile: "src/mappings/status.json",
-    transformFile: "src/transform/status.py",
-    modelFile: "src/models/status.py",
-    description: "Maps lifecycle state fields to the Status concept. Ontology values: Active, Approved, Inactive, Initiated, Planned.",
-    enums: {
-      StatusType: ["Active", "Approved", "Inactive", "Initiated", "Planned"]
-    },
-    fields: [
-      { name: "status_type",       type: "StatusType",        required: true },
-      { name: "source_value",      type: "str",               required: true },
-      { name: "source_description",type: "Optional[str]",     required: false },
-      { name: "source_file",       type: "str",               required: true, provenance: true },
-      { name: "source_field",      type: "str",               required: true, provenance: true },
-      { name: "source_record_id",  type: "str",               required: true, provenance: true },
-    ],
-    rules: [
-      { source_file: "—", source_field: "—", transformation: "—", target: "Mapping rules in progress (status.json)" },
-    ]
+    ontologyIRI: 'http://uva.thesis/ontologies/income#Status',
+    description: 'Maps lifecycle state fields to the Status concept — representing where in the administrative process each income record sits.',
+    stages: {
+      ontology: {
+        label: 'Ontology', file: 'mapping_copilot/ontology/income_ontology.ttl',
+        description: 'Defines Status as an OWL class with five named individuals representing lifecycle states.',
+        outputType: 'json',
+        output: { class: 'Status', iri: 'http://uva.thesis/ontologies/income#Status', type: 'owl:Class', linkedProperty: { name: 'status', kind: 'owl:ObjectProperty', domain: 'Income', range: 'Status' }, namedIndividuals: [ { name: 'Active', label: 'Record is currently active' }, { name: 'Approved', label: 'Decision formally approved' }, { name: 'Inactive', label: 'Record no longer active' }, { name: 'Initiated', label: 'Process started, not yet decided' }, { name: 'Planned', label: 'Scheduled but not yet started' } ] }
+      },
+      model: {
+        label: 'Model', file: 'src/models/status.py',
+        description: 'Pydantic schema with a StatusType enum covering the five ontology lifecycle states.',
+        outputType: 'code',
+        output: `class StatusType(str, Enum):
+    ACTIVE    = "Active"
+    APPROVED  = "Approved"
+    INACTIVE  = "Inactive"
+    INITIATED = "Initiated"
+    PLANNED   = "Planned"
+
+class Status(BaseModel):
+    status_type:        StatusType
+    source_value:       str
+    source_description: Optional[str] = None
+
+    # Provenance
+    source_file:        str
+    source_field:       str
+    source_record_id:   str`
+      },
+      reasoner: {
+  label: 'Reasoner', file: 'src/reasoner/status.py',
+  description: "Shows the internal rule trace: status keywords, lifecycle values, boolean interpretation, authority context, rejected fields, and status classification logic.",
+  outputType: 'reasoningTrace',
+  output: statusReasoningTrace
+},
+      mapping: {
+        label: 'Mapping', file: 'src/mappings/status.json',
+        description: 'Rules mapping authority-specific status strings to the unified ontology StatusType. (Mapping file in progress.)',
+        outputType: 'table',
+        output: { headers: ['Source file', 'Source field', 'Source value', '→ StatusType'], rows: [
+          ['csn_study_support_case.csv',      'case_status', 'Initiated', 'Initiated'],
+          ['csn_grant_decision.csv',           'status',      'Initiated', 'Initiated'],
+          ['af_job_seeker_status.csv',          'registered',  'false',     'Inactive'],
+          ['fk_case.csv',                       'active',      '0',         'Inactive'],
+          ['fk_period_benefit_decision.csv',    'waiting_period','None',    'Active'],
+        ]}
+      },
+      transform: {
+        label: 'Transform', file: 'src/transform/status.py',
+        description: "Produces typed Status model instances for Jane based on her lifecycle state fields.",
+        outputType: 'json',
+        output: [
+          { status_type: 'Initiated', source_value: 'Initiated', source_description: 'Case initiated', source_file: 'csn_study_support_case.csv',     source_field: 'case_status',    source_record_id: 'row0' },
+          { status_type: 'Initiated', source_value: 'Initiated', source_description: null,              source_file: 'csn_grant_decision.csv',          source_field: 'status',          source_record_id: 'row0' },
+          { status_type: 'Inactive',  source_value: 'false',     source_description: 'Not registered',  source_file: 'af_job_seeker_status.csv',        source_field: 'registered',      source_record_id: 'row0' },
+          { status_type: 'Inactive',  source_value: '0',         source_description: 'Case not active', source_file: 'fk_case.csv',                     source_field: 'active',          source_record_id: 'row0' },
+          { status_type: 'Active',    source_value: 'None',      source_description: 'No waiting period',source_file:'fk_period_benefit_decision.csv',  source_field: 'waiting_period',  source_record_id: 'row0' },
+        ]
+      },
+      result: {
+        label: 'Interpretation', file: null,
+        description: "Human-readable summary of lifecycle states for Jane.",
+        outputType: 'prose',
+        output: "Jane's CSN study support case and grant decision are both marked Initiated — the process has started but no formal approval has been issued yet. Her AF job-seeker registration is currently inactive (registered=false) and the FK case is also inactive, while her FK benefit decision has no waiting period, indicating the payment clock started immediately when the decision period began."
+      }
+    }
   },
 
   Occupation: {
-    color: "teal",
-    ontologyIRI: "http://uva.thesis/ontologies/income#occupation",
-    mappingFile: "src/mappings/occupation.json",
-    transformFile: "src/transform/occupation.py",
-    modelFile: "src/models/occupation.py",
-    description: "Maps source fields indicating whether a person is a job seeker, student, or employer to the Occupation concept.",
-    enums: {
-      OccupationType: ["Employer", "JobSeeker", "Student"]
-    },
-    fields: [
-      { name: "occupation_type",    type: "OccupationType",   required: true },
-      { name: "source_value",       type: "str",              required: true },
-      { name: "source_description", type: "Optional[str]",    required: false },
-      { name: "scope_pct",          type: "Optional[int]",    required: false },
-      { name: "source_file",        type: "str",              required: true, provenance: true },
-      { name: "source_field",       type: "str",              required: true, provenance: true },
-      { name: "source_record_id",   type: "str",              required: true, provenance: true },
-    ],
-    rules: [
-      { source_file: "af_job_seeker_status.csv",    source_field: "category",        transformation: "category_to_occupation",       target: "JobSeeker" },
-      { source_file: "csn_study_support_case.csv",  source_field: "support_type",    transformation: "support_type_to_occupation",   target: "Student" },
-      { source_file: "csn_grant_decision.csv",      source_field: "decision_type",   transformation: "grant_decision_to_occupation", target: "Student (+ scope_pct)" },
-      { source_file: "csn_approved_period.csv",     source_field: "study_pace_pct",  transformation: "study_pace_to_occupation",     target: "Student (+ scope_pct)" },
-    ]
+    ontologyIRI: 'http://uva.thesis/ontologies/income#Occupation',
+    description: 'Maps source fields indicating whether a person is a job seeker, student, or employer — with an optional scope percentage.',
+    stages: {
+      ontology: {
+        label: 'Ontology', file: 'mapping_copilot/ontology/income_ontology.ttl',
+        description: 'Defines Occupation as an OWL class with three named individuals representing role types.',
+        outputType: 'json',
+        output: { class: 'Occupation', iri: 'http://uva.thesis/ontologies/income#Occupation', type: 'owl:Class', linkedProperty: { name: 'occupationType', kind: 'owl:ObjectProperty', domain: 'Income', range: 'Occupation' }, namedIndividuals: [ { name: 'Employer', label: 'Person in employer role' }, { name: 'JobSeeker', label: 'Registered with AF' }, { name: 'Student', label: 'Receiving study finance from CSN' } ] }
+      },
+      model: {
+        label: 'Model', file: 'src/models/occupation.py',
+        description: 'Pydantic schema adding scope_pct to represent partial study pace or part-time job-seeking.',
+        outputType: 'code',
+        output: `class OccupationType(str, Enum):
+    EMPLOYER   = "Employer"
+    JOB_SEEKER = "JobSeeker"
+    STUDENT    = "Student"
+
+class Occupation(BaseModel):
+    occupation_type:    OccupationType
+    source_value:       str
+    source_description: Optional[str] = None
+    scope_pct:          Optional[int] = None  # e.g. 50 = half-pace studies
+
+    # Provenance
+    source_file:        str
+    source_field:       str
+    source_record_id:   str
+
+    @field_validator("scope_pct")
+    def scope_must_be_percentage(cls, v):
+        if v is not None and not 0 <= v <= 100:
+            raise ValueError("scope_pct must be 0–100")
+        return v`
+      },
+      reasoner: {
+  label: 'Reasoner', file: 'src/reasoner/occupation.py',
+  description: "Shows the internal rule trace: occupation keywords, source-value matches, authority context, scope detection, rejected fields, and occupation classification logic.",
+  outputType: 'reasoningTrace',
+  output: occupationReasoningTrace
+},
+      mapping: {
+        label: 'Mapping', file: 'src/mappings/occupation.json',
+        description: 'Rules mapping source role indicators to OccupationType, including scope_pct extraction.',
+        outputType: 'table',
+        output: { headers: ['Source file', 'Source field', 'Transformation', '→ Target'], rows: [
+          ['af_job_seeker_status.csv',   'category',       'category_to_occupation',       'JobSeeker (+ scope_pct)'],
+          ['csn_study_support_case.csv', 'support_type',   'support_type_to_occupation',   'Student'],
+          ['csn_grant_decision.csv',     'decision_type',  'grant_decision_to_occupation', 'Student (+ scope_pct)'],
+          ['csn_approved_period.csv',    'study_pace_pct', 'study_pace_to_occupation',     'Student (scope = field value)'],
+        ]}
+      },
+      transform: {
+        label: 'Transform', file: 'src/transform/occupation.py',
+        description: "Produces typed Occupation instances for Jane.",
+        outputType: 'json',
+        output: [
+          { occupation_type: 'JobSeeker', source_value: 'Openly unemployed', source_description: 'Academics Unemployment Fund', scope_pct: 100, source_file: 'af_job_seeker_status.csv',   source_field: 'category',       source_record_id: 'row0' },
+          { occupation_type: 'Student',   source_value: 'student_grant',     source_description: 'Student finance for studies in Sweden', scope_pct: null, source_file: 'csn_study_support_case.csv', source_field: 'support_type', source_record_id: 'row0' },
+          { occupation_type: 'Student',   source_value: 'Grant',             source_description: 'Distance',              scope_pct: 50,   source_file: 'csn_grant_decision.csv',  source_field: 'decision_type',  source_record_id: 'row0' },
+          { occupation_type: 'Student',   source_value: '50',                source_description: null,                     scope_pct: 50,   source_file: 'csn_approved_period.csv', source_field: 'study_pace_pct', source_record_id: 'row0' },
+        ]
+      },
+      result: {
+        label: 'Interpretation', file: null,
+        description: "Human-readable summary of Jane's occupation classification.",
+        outputType: 'prose',
+        output: "Jane is classified as both a JobSeeker and a Student across two distinct time periods: she was registered as openly unemployed with the AF at 100% scope during autumn 2025, and is enrolled in distance studies at 50% pace with CSN support in spring 2026. The dual classification reflects a sequential transition from employment-service support to study finance, not a concurrent overlap."
+      }
+    }
   },
+
 };
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────
+const SOURCES = [
+  { file: 'af_activity_report.csv',         authority: 'AF',  description: 'Activity report entries' },
+  { file: 'af_benefit_type_decision.csv',    authority: 'AF',  description: 'Benefit type decisions with scope and period' },
+  { file: 'af_job_seeker_status.csv',        authority: 'AF',  description: 'Job seeker registration status and category' },
+  { file: 'csn_applied_period.csv',          authority: 'CSN', description: 'Study aid application periods (CompactDate)' },
+  { file: 'csn_approved_amounts.csv',        authority: 'CSN', description: 'Approved weekly/total amounts by type' },
+  { file: 'csn_approved_period.csv',         authority: 'CSN', description: 'Approved study period with study pace (YearWeek)' },
+  { file: 'csn_grant_decision.csv',          authority: 'CSN', description: 'Grant decisions with period and grant code' },
+  { file: 'csn_study_support_case.csv',      authority: 'CSN', description: 'Study support case type and form' },
+  { file: 'fk_activity_support_details.csv', authority: 'FK',  description: 'Activity support detail records' },
+  { file: 'fk_case.csv',                     authority: 'FK',  description: 'Cases with benefit group code and opened date' },
+  { file: 'fk_payment.csv',                  authority: 'FK',  description: 'Monthly gross/net payments per benefit type' },
+  { file: 'fk_period_benefit_decision.csv',  authority: 'FK',  description: 'Period benefit decisions with amount and scope' },
+];
 
-function authorityTag(authority) {
-  const cls = { AF: "tag-af", FK: "tag-fk", CSN: "tag-csn", "*": "tag-all" }[authority] || "tag-all";
-  return `<span class="inline-block text-xs font-semibold px-2 py-0.5 rounded ${cls}">${authority}</span>`;
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+
+const STAGE_ORDER = ['ontology', 'model', 'reasoner', 'mapping', 'transform', 'result'];
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function fileAuthority(filename) {
-  if (filename.startsWith("af_")) return "AF";
-  if (filename.startsWith("fk_")) return "FK";
-  if (filename.startsWith("csn_")) return "CSN";
-  return "*";
+function fileAuthority(f) {
+  if (f.startsWith('af_')) return 'AF';
+  if (f.startsWith('fk_')) return 'FK';
+  if (f.startsWith('csn_')) return 'CSN';
+  return null;
 }
 
-function colorClasses(color) {
-  const map = {
-    violet: { bg: "bg-violet-50", border: "border-violet-200", title: "text-violet-700", badge: "bg-violet-100 text-violet-700" },
-    amber:  { bg: "bg-amber-50",  border: "border-amber-200",  title: "text-amber-700",  badge: "bg-amber-100 text-amber-700" },
-    sky:    { bg: "bg-sky-50",    border: "border-sky-200",    title: "text-sky-700",    badge: "bg-sky-100 text-sky-700" },
-    green:  { bg: "bg-green-50",  border: "border-green-200",  title: "text-green-700",  badge: "bg-green-100 text-green-700" },
-    rose:   { bg: "bg-rose-50",   border: "border-rose-200",   title: "text-rose-700",   badge: "bg-rose-100 text-rose-700" },
-    teal:   { bg: "bg-teal-50",   border: "border-teal-200",   title: "text-teal-700",   badge: "bg-teal-100 text-teal-700" },
-  };
-  return map[color] || map.violet;
+function authorityBadge(auth) {
+  const cls = { AF:'tag-af', FK:'tag-fk', CSN:'tag-csn' }[auth] || 'tag-all';
+  return `<span class="inline-block text-xs font-semibold px-1.5 py-0.5 rounded ${cls} mr-1">${auth}</span>`;
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────
+function renderOutput(stage, conceptName) {
+  switch (stage.outputType) {
+    case 'json':
+      return `<pre class="rounded-lg p-4 text-xs font-mono leading-relaxed overflow-x-auto" style="background:#1e293b;color:#86efac">${esc(JSON.stringify(stage.output, null, 2))}</pre>`;
+    case 'code':
+      return `<pre class="rounded-lg p-4 text-xs font-mono leading-relaxed overflow-x-auto" style="background:#1e293b;color:#93c5fd">${esc(stage.output)}</pre>`;
+    case 'table': {
+      const hdr = stage.output.headers.map(h =>
+        `<th class="text-left pb-2 pr-4 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200 whitespace-nowrap">${h}</th>`
+      ).join('');
+      const rows = stage.output.rows.map(row => {
+        const cells = row.map((cell, i) => {
+          let content = esc(cell);
+          if (i === 0) {
+            const auth = fileAuthority(cell.split(' ')[0]);
+            if (auth) content = authorityBadge(auth) + `<span class="font-mono text-xs">${esc(cell)}</span>`;
+          }
+          if (typeof cell === 'string' && cell.startsWith('✓')) {
+            content = `<span class="text-emerald-600 font-medium">${esc(cell)}</span>`;
+          }
+          if (typeof cell === 'string' && cell.startsWith('→')) {
+            content = `<span class="text-amber-700 font-semibold">${esc(cell)}</span>`;
+          }
+          return `<td class="py-2.5 pr-4 text-sm text-slate-700 align-top">${content}</td>`;
+        }).join('');
+        return `<tr class="border-b border-slate-50 hover:bg-white transition">${cells}</tr>`;
+      }).join('');
+      return `<div class="overflow-x-auto"><table class="w-full"><thead><tr>${hdr}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+
+    case 'reasoningTrace':
+  return renderReasoningTrace(stage.output, conceptName);
+
+    case 'prose':
+      return `<div class="rounded-xl p-5 border border-emerald-200 bg-white">
+        <p class="text-xs font-semibold uppercase tracking-widest text-emerald-600 mb-3">Interpretation — Jane Doe (20000421-1234)</p>
+        <p class="text-sm leading-relaxed text-slate-700">${esc(stage.output)}</p>
+      </div>`;
+  }
+}
+
+  function renderReasoningTrace(trace, conceptName) {
+  return `
+    <div class="space-y-5">
+      ${renderTraceSummary(trace.summary)}
+
+      <div class="flex flex-wrap gap-2">
+        <button class="trace-tab active text-xs font-semibold px-3 py-1.5 rounded-lg border border-blue-200" onclick="selectTraceTab('${conceptName}', 'overview', this)">Overview</button>
+        <button class="trace-tab text-xs font-semibold px-3 py-1.5 rounded-lg border border-blue-200 bg-white text-blue-700" onclick="selectTraceTab('${conceptName}', 'fields', this)">Field-level reasoning</button>
+        <button class="trace-tab text-xs font-semibold px-3 py-1.5 rounded-lg border border-blue-200 bg-white text-blue-700" onclick="selectTraceTab('${conceptName}', 'pairs', this)">Period pairing</button>
+      </div>
+
+      <div id="trace-${conceptName}-overview" class="trace-output open">
+        ${renderTraceOverview(trace)}
+      </div>
+      <div id="trace-${conceptName}-fields" class="trace-output">
+        ${trace.fields.map(renderFieldTraceCard).join('')}
+      </div>
+      <div id="trace-${conceptName}-pairs" class="trace-output">
+        ${renderPeriodPairs(trace.period_pairs)}
+      </div>
+    </div>
+  `;
+}
+
+function renderTraceSummary(summary) {
+  const stats = [
+    ['Inspected columns', summary.inspected_columns],
+    ['Accepted fields', summary.accepted_time_fields],
+    ['Rejected fields', summary.rejected_fields],
+    ['Period pairs', summary.period_pairs],
+    ['Threshold', summary.threshold],
+  ];
+
+  return `<div class="grid grid-cols-5 gap-3">${stats.map(([label, value]) => `
+    <div class="bg-white border border-blue-100 rounded-xl p-3">
+      <p class="text-[10px] uppercase tracking-widest text-slate-400">${esc(label)}</p>
+      <p class="text-lg font-bold text-slate-800 mt-1">${esc(value)}</p>
+    </div>`).join('')}</div>`;
+}
+
+function renderTraceOverview(trace) {
+  const accepted = trace.fields.filter(f => f.target_concept);
+  const rejected = trace.fields.filter(f => !f.target_concept);
+
+  return `
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-white border border-emerald-100 rounded-xl p-4">
+        <p class="text-xs font-semibold uppercase tracking-widest text-emerald-600 mb-3">Accepted fields</p>
+        <div class="space-y-2">${accepted.map(renderMiniFieldRow).join('')}</div>
+      </div>
+      <div class="bg-white border border-rose-100 rounded-xl p-4">
+        <p class="text-xs font-semibold uppercase tracking-widest text-rose-600 mb-3">Rejected fields</p>
+        <div class="space-y-2">${rejected.map(renderMiniFieldRow).join('')}</div>
+      </div>
+    </div>`;
+}
+
+function renderMiniFieldRow(field) {
+  const auth = fileAuthority(field.source_file);
+  return `<div class="flex items-center justify-between gap-3 border border-slate-100 rounded-lg px-3 py-2">
+    <div class="min-w-0">
+      <p class="font-mono text-xs font-semibold text-slate-700 truncate">${esc(field.source_field)}</p>
+      <p class="text-[11px] text-slate-400 truncate">${auth ? authorityBadge(auth) : ''}${esc(field.source_file)}</p>
+    </div>
+    <div class="text-right flex-shrink-0">
+      <p class="text-xs font-bold ${field.target_concept ? 'text-emerald-600' : 'text-rose-600'}">${esc(field.final_score)}</p>
+      <p class="text-[10px] text-slate-400">score</p>
+    </div>
+  </div>`;
+}
+
+function renderFieldTraceCard(field) {
+  const accepted = Boolean(field.target_concept);
+  const percent = Math.min(100, Math.round(field.final_score * 100));
+  const auth = fileAuthority(field.source_file);
+
+  return `
+    <div class="bg-white border ${accepted ? 'border-emerald-100' : 'border-rose-100'} rounded-xl p-4 mb-4">
+      <div class="flex justify-between items-start gap-4 mb-4">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            ${auth ? authorityBadge(auth) : ''}
+            <p class="font-mono text-sm font-semibold text-slate-800">${esc(field.source_field)}</p>
+            <span class="text-xs text-slate-400">${esc(field.source_file)}</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Sample values: <span class="font-mono">${field.sample_values.map(esc).join(', ')}</span></p>
+        </div>
+        <span class="text-xs font-bold px-2 py-1 rounded ${accepted ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${esc(field.decision)}</span>
+      </div>
+
+      <div class="mb-4">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Confidence score</span>
+          <span class="font-semibold text-slate-700">${esc(field.final_score)} / threshold 0.6</span>
+        </div>
+        <div class="score-bar"><div style="width:${percent}%"></div></div>
+      </div>
+
+      <div class="space-y-2">
+        ${field.checks.map(renderCheckRow).join('')}
+      </div>
+    </div>`;
+}
+
+function renderCheckRow(check) {
+  const scoreClass =
+    check.score_delta > 0
+      ? 'text-emerald-700 bg-emerald-50 border-emerald-100'
+      : check.score_delta < 0
+        ? 'text-rose-700 bg-rose-50 border-rose-100'
+        : 'text-slate-500 bg-slate-50 border-slate-100';
+
+  return `<div class="flex items-start gap-3 border-l-2 ${check.matched ? 'border-blue-300' : 'border-slate-200'} pl-3 py-2">
+    <span class="mt-0.5 text-xs font-bold ${check.matched ? 'text-blue-600' : 'text-slate-400'}">${check.matched ? '✓' : '—'}</span>
+    <div class="flex-1 min-w-0">
+      <div class="flex flex-wrap items-center gap-2">
+        <p class="text-xs font-semibold text-slate-700">${esc(check.step)}</p>
+        <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded border ${scoreClass}">${check.score_delta > 0 ? '+' : ''}${esc(check.score_delta)}</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-0.5">${esc(check.explanation)}</p>
+      ${check.matches && check.matches.length ? `<p class="text-xs font-mono text-indigo-600 mt-1">Matched: ${check.matches.map(esc).join(', ')}</p>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderPeriodPairs(pairs) {
+  return `<div class="space-y-3">${pairs.map(pair => `
+    <div class="bg-white border border-blue-100 rounded-xl p-4">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
+        ${authorityBadge(fileAuthority(pair.source_file))}
+        <span class="font-mono text-xs text-slate-500">${esc(pair.source_file)}</span>
+      </div>
+      <div class="flex items-center gap-3 mb-2">
+        <span class="bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg px-2 py-1 text-xs font-mono">${esc(pair.start_field)}</span>
+        <span class="text-slate-400">→</span>
+        <span class="bg-amber-50 text-amber-700 border border-amber-100 rounded-lg px-2 py-1 text-xs font-mono">${esc(pair.end_field)}</span>
+        <span class="ml-auto text-xs font-bold text-blue-700">confidence ${esc(pair.confidence)}</span>
+      </div>
+      <p class="text-xs text-slate-500 leading-relaxed">${esc(pair.reason)}</p>
+    </div>`).join('')}</div>`;
+}
+
+function selectTraceTab(conceptName, tab, clickedButton) {
+  document.querySelectorAll(`[id^="trace-${conceptName}-"]`).forEach(el => el.classList.remove('open'));
+  document.getElementById(`trace-${conceptName}-${tab}`).classList.add('open');
+
+  clickedButton.parentElement.querySelectorAll('.trace-tab').forEach(btn => {
+    btn.classList.remove('active');
+    btn.classList.add('bg-white', 'text-blue-700');
+  });
+
+  clickedButton.classList.add('active');
+  clickedButton.classList.remove('bg-white', 'text-blue-700');
+}
+
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+
+function toggleStage(conceptName, stageKey) {
+  const outputEl = document.getElementById(`out-${conceptName}-${stageKey}`);
+  const btnEl    = document.getElementById(`btn-${conceptName}-${stageKey}`);
+  if (!outputEl || !btnEl) return;
+
+  if (outputEl.classList.contains('open')) {
+    outputEl.classList.remove('open');
+    btnEl.textContent = '▶ Run';
+    btnEl.disabled = false;
+    return;
+  }
+
+  btnEl.textContent = 'Running…';
+  btnEl.disabled = true;
+  setTimeout(() => {
+    outputEl.classList.add('open');
+    btnEl.textContent = '▲ Hide';
+    btnEl.disabled = false;
+  }, 380);
+}
+
+async function runAll(conceptName) {
+  for (const stageKey of STAGE_ORDER) {
+    const outputEl = document.getElementById(`out-${conceptName}-${stageKey}`);
+    const btnEl    = document.getElementById(`btn-${conceptName}-${stageKey}`);
+    if (!outputEl || outputEl.classList.contains('open')) continue;
+    btnEl.textContent = 'Running…'; btnEl.disabled = true;
+    await new Promise(r => setTimeout(r, 200));
+    outputEl.classList.add('open');
+    btnEl.textContent = '▲ Hide'; btnEl.disabled = false;
+    await new Promise(r => setTimeout(r, 120));
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
 
 let currentSection = null;
+
+function updateNav() {
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const active = btn.dataset.concept === currentSection || btn.dataset.section === currentSection;
+    btn.className = `nav-btn w-full text-left text-sm px-3 py-2 rounded-md transition ${active ? 'active' : 'text-slate-600 hover:bg-slate-100'}`;
+  });
+}
 
 function selectConcept(name) {
   currentSection = name;
   updateNav();
-  const concept = CONCEPTS[name];
-  const c = colorClasses(concept.color);
+  const concept = PIPELINE[name];
 
-  const enumsHtml = Object.entries(concept.enums).map(([enumName, values]) => `
-    <div class="mb-3">
-      <p class="text-xs font-semibold text-slate-500 mb-1.5">${enumName}</p>
-      <div class="flex flex-wrap gap-1.5">
-        ${values.map(v => `<span class="text-xs rounded px-2 py-1 ${c.badge} font-mono">${v}</span>`).join("")}
+  const stagesHtml = STAGE_ORDER.map((stageKey, idx) => {
+    const stage = concept.stages[stageKey];
+    const s = STAGE_STYLES[stageKey];
+    const isLast = idx === STAGE_ORDER.length - 1;
+    const outputHtml = renderOutput(stage, name);
+
+    const stageCard = `
+      <div class="${s.bg} border ${s.border} rounded-xl overflow-hidden">
+        <div class="flex items-start justify-between gap-4 p-4">
+          <div class="flex items-start gap-3 min-w-0">
+            <span class="flex-shrink-0 w-7 h-7 rounded-full ${s.badge} flex items-center justify-center text-xs font-bold mt-0.5">${idx+1}</span>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-semibold text-slate-800">${stage.label}</span>
+                ${stage.file ? `<span class="text-xs font-mono text-slate-400 truncate">${stage.file}</span>` : ''}
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">${stage.description}</p>
+            </div>
+          </div>
+          <button id="btn-${name}-${stageKey}"
+            onclick="toggleStage('${name}','${stageKey}')"
+            class="${s.btn} flex-shrink-0 text-xs font-semibold px-4 py-2 rounded-lg transition">
+            ▶ Run
+          </button>
+        </div>
+        <div id="out-${name}-${stageKey}" class="stage-output">
+          <div class="border-t ${s.divider} p-4">${outputHtml}</div>
+        </div>
       </div>
-    </div>
-  `).join("") || `<p class="text-xs text-slate-400 italic">No enums — plain fields only</p>`;
+    `;
 
-  const fieldsHtml = concept.fields.map(f => `
-    <tr class="rule-row border-b border-slate-100">
-      <td class="py-2 pr-4 font-mono text-sm ${f.provenance ? "text-slate-400" : "text-slate-700"}">${f.name}</td>
-      <td class="py-2 pr-4 text-xs text-slate-500 font-mono">${f.type}</td>
-      <td class="py-2 text-xs">${f.required ? '<span class="text-rose-500">required</span>' : '<span class="text-slate-400">optional</span>'}${f.default ? ` <span class="text-slate-400">default="${f.default}"</span>` : ""}${f.provenance ? ' <span class="text-amber-600 font-medium">provenance</span>' : ""}</td>
-    </tr>
-  `).join("");
+    const connector = isLast ? '' : `<div class="connector"><div class="line"></div><div class="arrowhead">▼</div><div class="line"></div></div>`;
+    return stageCard + connector;
+  }).join('');
 
-  const rulesHtml = concept.rules.map(r => {
-    const auth = fileAuthority(r.source_file.split(" ")[0]);
-    return `
-    <tr class="rule-row border-b border-slate-100">
-      <td class="py-2.5 pr-4 text-xs font-mono text-slate-600">${authorityTag(auth)} <span class="ml-1">${r.source_file}</span></td>
-      <td class="py-2.5 pr-4 text-xs font-mono text-slate-600">${r.source_field}</td>
-      <td class="py-2.5 pr-4 text-xs text-teal-700 font-mono">${r.transformation}</td>
-      <td class="py-2.5 text-xs font-semibold text-slate-700">${r.target}</td>
-    </tr>
-  `}).join("");
-
-  document.getElementById("detail-panel").innerHTML = `
-    <div class="max-w-4xl">
-      <!-- Concept header -->
-      <div class="flex items-start justify-between mb-6">
+  document.getElementById('detail-panel').innerHTML = `
+    <div class="max-w-3xl">
+      <div class="flex items-start justify-between gap-4 mb-6">
         <div>
           <h2 class="text-2xl font-bold text-slate-900">${name}</h2>
-          <p class="text-xs text-slate-400 font-mono mt-1">${concept.ontologyIRI}</p>
-          <p class="text-sm text-slate-600 mt-2 max-w-2xl">${concept.description}</p>
+          <p class="text-xs font-mono text-slate-400 mt-1">${concept.ontologyIRI}</p>
+          <p class="text-sm text-slate-600 mt-2 max-w-xl leading-relaxed">${concept.description}</p>
         </div>
+        <button onclick="runAll('${name}')"
+          class="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition shadow-sm">
+          ▶▶ Run all
+        </button>
       </div>
-
-      <!-- File paths -->
-      <div class="flex flex-wrap gap-2 mb-6">
-        ${[
-          { label: "Mapping", file: concept.mappingFile, color: "amber" },
-          { label: "Transform", file: concept.transformFile, color: "teal" },
-          { label: "Model", file: concept.modelFile, color: "violet" },
-        ].map(f => `
-          <div class="flex items-center gap-1.5 bg-slate-100 rounded px-3 py-1.5">
-            <span class="text-xs text-slate-400">${f.label}</span>
-            <span class="text-xs font-mono text-slate-700">${f.file}</span>
-          </div>
-        `).join("")}
-      </div>
-
-      <div class="grid grid-cols-2 gap-6 mb-8">
-        <!-- Model fields -->
-        <div class="${c.bg} border ${c.border} rounded-xl p-5">
-          <h3 class="text-xs font-semibold uppercase tracking-widest ${c.title} mb-4">Pydantic Model Fields</h3>
-          <table class="w-full">
-            <thead>
-              <tr class="text-xs text-slate-400 border-b border-slate-200">
-                <th class="text-left pb-2 font-normal">Field</th>
-                <th class="text-left pb-2 font-normal">Type</th>
-                <th class="text-left pb-2 font-normal">Notes</th>
-              </tr>
-            </thead>
-            <tbody>${fieldsHtml}</tbody>
-          </table>
-        </div>
-
-        <!-- Enums -->
-        <div class="${c.bg} border ${c.border} rounded-xl p-5">
-          <h3 class="text-xs font-semibold uppercase tracking-widest ${c.title} mb-4">Enum Values</h3>
-          ${enumsHtml}
-        </div>
-      </div>
-
-      <!-- Mapping rules -->
-      <div class="bg-white border border-slate-200 rounded-xl p-5">
-        <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-4">
-          Mapping Rules
-          <span class="ml-2 normal-case font-normal text-slate-400">${concept.mappingFile}</span>
-        </h3>
-        <table class="w-full">
-          <thead>
-            <tr class="text-xs text-slate-400 border-b border-slate-200">
-              <th class="text-left pb-2 font-normal">Source File</th>
-              <th class="text-left pb-2 font-normal">Source Field</th>
-              <th class="text-left pb-2 font-normal">Transformation</th>
-              <th class="text-left pb-2 font-normal">Target Value</th>
-            </tr>
-          </thead>
-          <tbody>${rulesHtml}</tbody>
-        </table>
-      </div>
+      ${stagesHtml}
     </div>
   `;
 }
 
 function selectSources() {
-  currentSection = "sources";
+  currentSection = 'sources';
   updateNav();
+  const byAuth = { AF: [], FK: [], CSN: [] };
+  SOURCES.forEach(s => byAuth[s.authority].push(s));
+  const authColors = { AF: 'bg-blue-50 border-blue-200', FK: 'bg-green-50 border-green-200', CSN: 'bg-orange-50 border-orange-200' };
 
-  const byAuthority = { AF: [], FK: [], CSN: [] };
-  SOURCES.forEach(s => byAuthority[s.authority].push(s));
-
-  const authorityColors = {
-    AF:  "bg-blue-50 border-blue-200",
-    FK:  "bg-green-50 border-green-200",
-    CSN: "bg-orange-50 border-orange-200",
-  };
-
-  const html = Object.entries(byAuthority).map(([auth, files]) => `
+  const html = Object.entries(byAuth).map(([auth, files]) => `
     <div class="mb-6">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">${auth} · ${files.length} files</h3>
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">${auth} — ${files.length} files</h3>
       <div class="grid grid-cols-2 gap-3">
-        ${files.map(f => `
-          <div class="${authorityColors[auth]} border rounded-lg p-4">
-            <p class="text-sm font-mono font-semibold text-slate-700 mb-1">${f.file}</p>
-            <p class="text-xs text-slate-500">${f.description}</p>
-          </div>
-        `).join("")}
+        ${files.map(f => `<div class="${authColors[auth]} border rounded-lg p-4">
+          <p class="text-sm font-mono font-semibold text-slate-700 mb-1">${f.file}</p>
+          <p class="text-xs text-slate-500">${f.description}</p>
+        </div>`).join('')}
       </div>
     </div>
-  `).join("");
+  `).join('');
 
-  document.getElementById("detail-panel").innerHTML = `
+  document.getElementById('detail-panel').innerHTML = `
     <div class="max-w-3xl">
       <h2 class="text-2xl font-bold text-slate-900 mb-2">Source Files</h2>
-      <p class="text-sm text-slate-500 mb-6">All synthetic SSBTEK CSV files. Located in <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">mapping_copilot/data/raw/</span>. All files share a <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">personal_id</span> column for cross-authority linking.</p>
+      <p class="text-sm text-slate-500 mb-6">All synthetic SSBTEK CSVs in <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">mapping_copilot/data/raw/</span>. All share a <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">personal_id</span> column for cross-authority linking.</p>
       ${html}
-    </div>
-  `;
-}
-
-function selectSection(section) {
-  if (section === "sources") return selectSources();
-  if (section === "api") return selectAPI();
+    </div>`;
 }
 
 function selectAPI() {
-  currentSection = "api";
+  currentSection = 'api';
   updateNav();
-
-  document.getElementById("detail-panel").innerHTML = `
+  document.getElementById('detail-panel').innerHTML = `
     <div class="max-w-2xl">
       <h2 class="text-2xl font-bold text-slate-900 mb-2">API</h2>
-      <p class="text-sm text-slate-500 mb-6">Start with: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">uvicorn api:app --reload</span> from the project root.</p>
+      <p class="text-sm text-slate-500 mb-6">Start with: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-xs">uvicorn api:app --reload</span></p>
 
-      <!-- Endpoints -->
       <div class="space-y-4 mb-8">
         <div class="bg-white border border-slate-200 rounded-xl p-5">
-          <div class="flex items-center gap-3 mb-3">
+          <div class="flex items-center gap-3 mb-2">
             <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">GET</span>
             <span class="font-mono text-sm text-slate-700">/</span>
-            <span class="text-xs text-slate-400">Health check</span>
           </div>
           <pre class="bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono text-slate-600">{ "status": "API is running" }</pre>
         </div>
@@ -483,10 +1639,9 @@ function selectAPI() {
             <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">POST</span>
             <span class="font-mono text-sm text-slate-700">/api/test-pipeline</span>
           </div>
-
-          <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="grid grid-cols-2 gap-4 mb-3">
             <div>
-              <p class="text-xs font-semibold text-slate-500 mb-1.5">Request body</p>
+              <p class="text-xs font-semibold text-slate-500 mb-1.5">Request</p>
               <pre class="bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono text-slate-600">{ "category": "income" }</pre>
             </div>
             <div>
@@ -500,12 +1655,10 @@ function selectAPI() {
 }</pre>
             </div>
           </div>
-
-          <p class="text-xs text-slate-500 mb-3">What it does: runs <code class="bg-slate-100 px-1 rounded">transform_support_type("20000421-1234")</code> and returns all matched SupportType instances for Jane Doe from the synthetic CSV data.</p>
+          <p class="text-xs text-slate-500">Runs <code class="bg-slate-100 px-1 rounded">transform_support_type("20000421-1234")</code> and returns all matched SupportType instances for Jane from the synthetic CSV data.</p>
         </div>
       </div>
 
-      <!-- Live test -->
       <div class="bg-white border border-slate-200 rounded-xl p-5">
         <h3 class="text-sm font-semibold text-slate-700 mb-4">Live test <span class="text-xs font-normal text-slate-400">(API must be running on localhost:8000)</span></h3>
         <div class="flex gap-2 mb-4">
@@ -513,68 +1666,46 @@ function selectAPI() {
             class="border border-slate-200 rounded px-3 py-2 text-sm font-mono flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             placeholder="category" />
           <button onclick="callAPI()"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded transition">
+            class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
             Send
           </button>
         </div>
-        <pre id="api-result" class="bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono text-slate-600 min-h-12 whitespace-pre-wrap">
-— press Send to call the API —
-        </pre>
+        <pre id="api-result" class="bg-slate-50 border border-slate-200 rounded p-3 text-xs font-mono text-slate-600 min-h-12 whitespace-pre-wrap">— press Send to call the API —</pre>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 async function callAPI() {
-  const category = document.getElementById("api-input").value.trim();
-  const resultEl = document.getElementById("api-result");
-  resultEl.textContent = "Calling localhost:8000…";
+  const category = document.getElementById('api-input').value.trim();
+  const resultEl = document.getElementById('api-result');
+  resultEl.textContent = 'Calling localhost:8000…';
   try {
-    const res = await fetch("http://localhost:8000/api/test-pipeline", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const res = await fetch('http://localhost:8000/api/test-pipeline', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ category }),
     });
-    const data = await res.json();
-    resultEl.textContent = JSON.stringify(data, null, 2);
+    resultEl.textContent = JSON.stringify(await res.json(), null, 2);
   } catch (err) {
     resultEl.textContent = `Error: ${err.message}\n\nMake sure the API is running:\n  uvicorn api:app --reload`;
   }
 }
 
-function updateNav() {
-  document.querySelectorAll(".nav-btn").forEach(btn => {
-    const isActive = btn.dataset.concept === currentSection || btn.dataset.section === currentSection;
-    btn.className = `nav-btn w-full text-left text-sm px-3 py-2 rounded-md transition ${
-      isActive ? "bg-indigo-50 text-indigo-700 font-semibold" : "text-slate-600 hover:bg-slate-100"
-    }`;
-  });
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 
 function buildNav() {
-  const conceptNav = document.getElementById("concept-nav");
-  Object.keys(CONCEPTS).forEach(name => {
-    const btn = document.createElement("button");
-    btn.className = "nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition";
+  const nav = document.getElementById('concept-nav');
+  Object.keys(PIPELINE).forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition';
     btn.dataset.concept = name;
     btn.textContent = name;
     btn.onclick = () => selectConcept(name);
-    conceptNav.appendChild(btn);
+    nav.appendChild(btn);
   });
-
-  const sourceNav = document.getElementById("source-nav");
-  const sourceBtn = document.createElement("button");
-  sourceBtn.className = "nav-btn w-full text-left text-sm px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100 transition";
-  sourceBtn.dataset.section = "sources";
-  sourceBtn.textContent = "All 12 CSV files";
-  sourceBtn.onclick = () => selectSources();
-  sourceNav.appendChild(sourceBtn);
 }
 
 buildNav();
-selectConcept("SupportType");
+selectConcept('SupportType');
 </script>
 </body>
 </html>
