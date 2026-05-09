@@ -19,10 +19,10 @@ from pathlib import Path
 from src.models.support_type import SupportType, SupportTypeValue
 
 
-BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-DATA_DIR = BACKEND_ROOT / "mapping_copilot" / "data" / "raw"
-MAPPINGS_FILE = BACKEND_ROOT / "src" / "mappings" / "support_type.json"
+DATA_DIR = PROJECT_ROOT / "data" / "raw"
+MAPPINGS_FILE = PROJECT_ROOT / "src" / "mappings" / "support_type.json"
 
 JANE_PNR = "20000421-1234"
 
@@ -152,7 +152,7 @@ def demo_jane() -> None:
     print(f"  Resolving SupportType concept for {JANE_PNR} (Jane Doe)")
     print("=" * 64)
     print()
-    print(f"  Project root: {BACKEND_ROOT}")
+    print(f"  Project root: {PROJECT_ROOT}")
     print(f"  Data dir:     {DATA_DIR}")
     print(f"  Mappings:     {MAPPINGS_FILE}")
     print()
