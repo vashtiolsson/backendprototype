@@ -68,26 +68,49 @@ CONCEPT_MODULES = {
     "support-type": {
         "transform": "src.transform.support_type",
         "reasoner": "src.reasoner.support_type_reasoner",
+        "mapping": "src.mappings.support_type",  
+        "model": "src.models.support_type",
+
     },
 
     "amount": {
         "transform": "src.transform.amount",
+        "reasoner": "src.reasoner.amount",
+        "mapping": "src.mappings.amount",
+        "model": "src.models.amount",
+
+
     },
 
     "time-period": {
         "transform": "src.transform.period",
+        "reasoner": "src.reasoner.period",
+        "mapping": "src.mappings.period",
+        "model": "src.models.period",
+
     },
 
     "status": {
         "transform": "src.transform.status",
+        "reasoner": "src.reasoner.status",
+        "mapping": "src.mappings.status",
+        "model": "src.models.status",
+
     },
 
     "occupation": {
         "transform": "src.transform.occupation",
+        "reasoner": "src.reasoner.occupation",
+        "mapping": "src.mappings.occupation",
+        "model": "src.models.occupation",
+
     },
 
     "person": {
         "transform": "src.transform.person",
+        "reasoner": "src.reasoner.person",
+        "mapping": "src.mappings.person",
+        "model": "src.models.person",
     },
 }
 
