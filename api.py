@@ -65,24 +65,51 @@ def test_pipeline(body: RequestBody):
     }
 
 CONCEPT_MODULES = {
-    "support-type": "src.transform.support_type",
-    "amount": "src.transform.amount",
-    "time-period": "src.transform.period",
-    "status": "src.transform.status",
-    "occupation": "src.transform.occupation",
-    "person": "src.transform.person",
+    "support-type": {
+        "transform": "src.transform.support_type",
+        "reasoner": "src.reasoner.support_type_reasoner",
+    },
+
+    "amount": {
+        "transform": "src.transform.amount",
+    },
+
+    "time-period": {
+        "transform": "src.transform.period",
+    },
+
+    "status": {
+        "transform": "src.transform.status",
+    },
+
+    "occupation": {
+        "transform": "src.transform.occupation",
+    },
+
+    "person": {
+        "transform": "src.transform.person",
+    },
 }
 
 
-@app.post("/api/run-{concept_kebab}-transform-file")
-def run_concept_transform_file(concept_kebab: str):
+@app.post("/api/run-{concept_kebab}-{stage_key}-file")
+def run_concept_stage_file(concept_kebab: str, stage_key: str):
+
     if concept_kebab not in CONCEPT_MODULES:
         raise HTTPException(
             status_code=400,
             detail=f"Unknown concept: {concept_kebab}"
         )
 
-    module = CONCEPT_MODULES[concept_kebab]
+    concept_stages = CONCEPT_MODULES[concept_kebab]
+
+    if stage_key not in concept_stages:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown stage '{stage_key}' for concept '{concept_kebab}'"
+        )
+
+    module = concept_stages[stage_key]
 
     try:
         backend_root = Path(__file__).resolve().parent
@@ -105,7 +132,7 @@ def run_concept_transform_file(concept_kebab: str):
     except subprocess.TimeoutExpired:
         raise HTTPException(
             status_code=504,
-            detail=f"{concept_kebab} transformer took too long to run."
+            detail=f"{concept_kebab} {stage_key} took too long to run."
         )
 
     except Exception as e:
