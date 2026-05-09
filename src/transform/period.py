@@ -1,9 +1,9 @@
 """
-Transformation engine for the TimePeriod concept.
+Transformation engine for the Period concept.
 
 Reads:
   data/raw/*.csv          synthetic SSBTEK source data, at project root
-  src/mappings/time.json  declarative TimePeriod rules
+  src/mappings/time.json  declarative Period rules
 
 Run from the project root:
   python -m src.transform.period
@@ -17,7 +17,7 @@ from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
 
-from src.models.period import TimeFormat, TimePeriod
+from src.models.period import TimeFormat, Period
 
 
 PROJECT_ROOT  = Path(__file__).resolve().parent.parent.parent
@@ -86,10 +86,10 @@ def transform_period(
     personal_id: str,
     mappings: list[dict] | None = None,
     data_dir: Path = DATA_DIR,
-) -> list[TimePeriod]:
+) -> list[Period]:
     """
-    Apply all TimePeriod-targeting mappings to one person's source data
-    and return a list of TimePeriod instances.
+    Apply all Period-targeting mappings to one person's source data
+    and return a list of Period instances.
     """
     if mappings is None:
         mappings = load_mappings()
@@ -98,7 +98,7 @@ def transform_period(
     for rule in mappings:
         rules_by_file[rule["source_file"]].append(rule)
 
-    periods: list[TimePeriod] = []
+    periods: list[Period] = []
 
     for filename, rules in rules_by_file.items():
         path = data_dir / filename
@@ -129,10 +129,12 @@ def transform_period(
                     if start_date is None:
                         continue
 
-                    periods.append(TimePeriod(
+                    periods.append(Period(
                         start_date=start_date,
                         end_date=end_date,
                         source_format=fmt,
+                        source_start_value=str(row.get(start_field, "")),
+                        source_end_value=str(row.get(end_field, "")) if end_field else None,
                         source_file=filename,
                         source_start_field=start_field,
                         source_end_field=end_field,
@@ -146,7 +148,7 @@ def transform_period(
 
 def demo_jane() -> None:
     print("=" * 64)
-    print(f"  Resolving TimePeriod concept for {JANE_PNR} (Jane Doe)")
+    print(f"  Resolving Period concept for {JANE_PNR} (Jane Doe)")
     print("=" * 64)
     print()
     print(f"  Project root: {PROJECT_ROOT}")
@@ -161,9 +163,9 @@ def demo_jane() -> None:
         print(f"  Expected CSVs in: {DATA_DIR}")
         return
 
-    print(f"Found {len(periods)} TimePeriod instance(s):\n")
+    print(f"Found {len(periods)} Period instance(s):\n")
 
-    by_file: dict[str, list[TimePeriod]] = defaultdict(list)
+    by_file: dict[str, list[Period]] = defaultdict(list)
     for period in periods:
         by_file[period.source_file].append(period)
 

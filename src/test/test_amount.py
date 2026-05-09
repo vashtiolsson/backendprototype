@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from models.amount import MonetaryAmount, Frequency, ValueContext
+from src.models.amount import MonetaryAmount, Frequency, ValueContext
 
 
 amount = MonetaryAmount(
@@ -16,11 +16,3 @@ amount = MonetaryAmount(
 print(amount)
 
 print(amount.model_dump())
-
-
-class Frequency(str, Enum):
-    """Mirrors :Frequency individuals in the ontology."""
-    WEEK  = "Week"
-    MONTH = "Month"
-    TOTAL = "Total"
-
