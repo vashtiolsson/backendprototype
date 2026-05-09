@@ -64,52 +64,31 @@ def test_pipeline(body: RequestBody):
         }
     }
 
+CONCEPT_MODULES = {
+    "support-type": "src.transform.support_type",
+    "amount": "src.transform.amount",
+    "time-period": "src.transform.period",
+    "status": "src.transform.status",
+    "occupation": "src.transform.occupation",
+    "person": "src.transform.person",
+}
 
-@app.post("/api/run-transform")
-def run_transform(body: TransformRequest):
-    print("RUN TRANSFORM CALLED")
-    print("CONCEPT:", body.concept)
-    print("PERSON ID:", body.person_id)
 
-    runners = {
-        "SupportType": transform_support_type,
-        "Amount": transform_amount,
-        "TimePeriod": transform_period,
-        "Status": transform_status,
-        "Occupation": transform_occupation,
-        "Person": transform_person,
-    }
-
-    if body.concept not in runners:
+@app.post("/api/run-{concept_kebab}-transform-file")
+def run_concept_transform_file(concept_kebab: str):
+    if concept_kebab not in CONCEPT_MODULES:
         raise HTTPException(
             status_code=400,
-            detail=f"Unknown concept: {body.concept}"
+            detail=f"Unknown concept: {concept_kebab}"
         )
 
-    result = runners[body.concept](body.person_id)
+    module = CONCEPT_MODULES[concept_kebab]
 
-    if isinstance(result, list):
-        output = [
-            item.model_dump() if hasattr(item, "model_dump") else item
-            for item in result
-        ]
-    else:
-        output = result.model_dump() if hasattr(result, "model_dump") else result
-
-    return {
-        "concept": body.concept,
-        "person_id": body.person_id,
-        "stage": "transform",
-        "output": output,
-    }
-
-@app.post("/api/run-support-type-transform-file")
-def run_support_type_transform_file():
     try:
         backend_root = Path(__file__).resolve().parent
 
         completed = subprocess.run(
-            [sys.executable, "-m", "src.transform.support_type"],
+            [sys.executable, "-m", module],
             cwd=backend_root,
             capture_output=True,
             text=True,
@@ -117,7 +96,7 @@ def run_support_type_transform_file():
         )
 
         return {
-            "command": "python -m src.transform.support_type",
+            "command": f"python -m {module}",
             "returncode": completed.returncode,
             "stdout": completed.stdout,
             "stderr": completed.stderr,
@@ -126,7 +105,7 @@ def run_support_type_transform_file():
     except subprocess.TimeoutExpired:
         raise HTTPException(
             status_code=504,
-            detail="SupportType transformer took too long to run."
+            detail=f"{concept_kebab} transformer took too long to run."
         )
 
     except Exception as e:
