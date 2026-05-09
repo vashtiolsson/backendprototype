@@ -10,31 +10,6 @@ status values are:
   • Inactive
   • Initiated
   • Planned
-
-Source datasets express status differently. AF may describe whether a person
-is currently registered or whether a decision is active/inactive. CSN may
-describe study-support decisions as approved, planned, or initiated. FK may
-describe cases, decisions, or payments through administrative lifecycle fields.
-
-The model explicitly captures:
-
-  • status_type — the ontology-level lifecycle state.
-
-  • source_value — the original value found in the CSV, such as
-    "approved", "active", "false", "submitted", or another source-specific
-    label.
-
-  • source_description — optional human-readable context from the source,
-    when available.
-
-  • provenance (source_file + source_field + source_record_id) — every
-    Status instance can be traced back to the exact row and field it came
-    from. This lets the demo show *why* an Income record was classified as
-    active, approved, inactive, initiated, or planned.
-
-Mirrors the ontology's :Status concept with provenance metadata and
-source-level explanation fields needed for reliable transformation and
-explainability.
 """
 
 from enum import Enum
@@ -71,7 +46,7 @@ class Status(BaseModel):
         description="Optional human-readable explanation from the source",
     )
 
-    # Provenance — required so every Status can be traced
+    # Provenance
     source_file: str
     source_field: str = Field(
         ...,
@@ -79,9 +54,46 @@ class Status(BaseModel):
     )
     source_record_id: str = Field(
         ...,
-        description="Stable identifier for the originating row "
-                    "(row index or a composite of join keys)",
+        description="Stable identifier for the originating row",
     )
 
     def __str__(self) -> str:
         return self.status_type.value
+
+
+def demo_model() -> None:
+    print("=" * 64)
+    print("Status Pydantic model")
+    print("=" * 64)
+    print()
+
+    print("This model defines the required backend structure for Status.")
+    print("It ensures that each output has:")
+    print("  - one ontology-level status")
+    print("  - the original source value")
+    print("  - optional source description")
+    print("  - provenance back to file, field, and row")
+    print()
+
+    print("Allowed enum values:")
+    for value in StatusType:
+        print(f"  - {value.value}")
+
+    print()
+    print("Example validated instance:")
+    print()
+
+    example = Status(
+        status_type=StatusType.APPROVED,
+        source_value="approved",
+        source_description="CSN approved status",
+        source_file="csn_grant_decision.csv",
+        source_field="status",
+        source_record_id="row0",
+    )
+
+    print(example.model_dump_json(indent=2))
+
+
+if __name__ == "__main__":
+    demo_model()

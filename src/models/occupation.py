@@ -25,10 +25,9 @@ The model explicitly captures:
   • scope_pct — optional percentage describing extent, such as study pace,
     job-seeking scope, or activity/support scope when provided.
 
-  • provenance (source_file + source_field + source_record_id) — every
-    Occupation instance can be traced back to the exact row and field it came
-    from. This lets the demo show *why* a person was classified as student,
-    job seeker, or employer.
+  • provenance — every Occupation instance can be traced back to the exact
+    row and field it came from. This lets the demo show why a person was
+    classified as student, job seeker, or employer.
 
 Mirrors the ontology's :Occupation concept with provenance metadata and
 source-level explanation fields needed for reliable transformation and
@@ -72,7 +71,7 @@ class Occupation(BaseModel):
         description="Optional extent of the occupation/status, expressed as a percentage",
     )
 
-    # Provenance — required so every Occupation can be traced
+    # Provenance
     source_file: str
     source_field: str = Field(
         ...,
@@ -80,9 +79,21 @@ class Occupation(BaseModel):
     )
     source_record_id: str = Field(
         ...,
-        description="Stable identifier for the originating row "
-                    "(row index or a composite of join keys)",
+        description="Stable identifier for the originating row",
     )
+
+    @field_validator(
+        "source_value",
+        "source_file",
+        "source_field",
+        "source_record_id",
+    )
+    @classmethod
+    def required_text_values_must_not_be_empty(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Required Occupation source/provenance values cannot be empty")
+        return value
 
     @field_validator("scope_pct")
     @classmethod
@@ -95,3 +106,43 @@ class Occupation(BaseModel):
         if self.scope_pct is None:
             return self.occupation_type.value
         return f"{self.occupation_type.value} ({self.scope_pct}%)"
+
+
+def demo_model() -> None:
+    print("=" * 64)
+    print("Occupation Pydantic model")
+    print("=" * 64)
+    print()
+
+    print("This model defines the required backend structure for Occupation.")
+    print("It ensures that each output has:")
+    print("  - one ontology-level occupation category")
+    print("  - the original source value")
+    print("  - optional source description")
+    print("  - optional scope percentage")
+    print("  - provenance back to file, field, and row")
+    print()
+
+    print("Allowed enum values:")
+    for value in OccupationType:
+        print(f"  - {value.value}")
+
+    print()
+    print("Example validated instance:")
+    print()
+
+    example = Occupation(
+        occupation_type=OccupationType.STUDENT,
+        source_value="student_grant",
+        source_description="CSN study support case indicating student status",
+        scope_pct=100,
+        source_file="csn_grant_decision.csv",
+        source_field="decision_type",
+        source_record_id="row0",
+    )
+
+    print(example.model_dump_json(indent=2))
+
+
+if __name__ == "__main__":
+    demo_model()

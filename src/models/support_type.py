@@ -48,10 +48,48 @@ class SupportType(BaseModel):
     source_value: str
     source_description: Optional[str] = None
 
-    # provenance
+    # Provenance
     source_file: str
     source_field: str
     source_record_id: str
 
     def __str__(self) -> str:
         return self.support_type.value
+
+
+def demo_model() -> None:
+    print("=" * 64)
+    print("SupportType Pydantic model")
+    print("=" * 64)
+    print()
+
+    print("This model defines the required backend structure for SupportType.")
+    print("It ensures that each output has:")
+    print("  - one ontology-level support type")
+    print("  - the original source value")
+    print("  - optional source description")
+    print("  - provenance back to file, field, and row")
+    print()
+
+    print("Allowed enum values:")
+    for value in SupportTypeValue:
+        print(f"  - {value.value}")
+
+    print()
+    print("Example validated instance:")
+    print()
+
+    example = SupportType(
+        support_type=SupportTypeValue.STUDENT_GRANT,
+        source_value="GRUNDB",
+        source_description="CSN student grant",
+        source_file="csn_approved_amounts.csv",
+        source_field="amount_type_code",
+        source_record_id="row0",
+    )
+
+    print(example.model_dump_json(indent=2))
+
+
+if __name__ == "__main__":
+    demo_model()

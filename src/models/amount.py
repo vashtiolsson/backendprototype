@@ -13,12 +13,11 @@ the source data leaves implicit:
     for CSN we store gross because there is no tax withholding on
     student finance.
 
-  • provenance (source_file + source_field + source_record_id) — every
-    instance can be traced back to the exact row it came from. This
-    is what lets the demo show *why* a number appeared.
+  • provenance — every instance can be traced back to the exact row and
+    field it came from. This lets the demo show why a number appeared.
 
-Mirrors the ontology's :MonetaryAmount class with the addition of
-context (which the ontology does not yet model — worth adding later).
+Mirrors the ontology's :MonetaryAmount class with the addition of context
+and provenance metadata needed for reliable transformation and explanation.
 """
 
 from decimal import Decimal
@@ -29,50 +28,141 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class Frequency(str, Enum):
-    """Mirrors :Frequency individuals in the ontology."""
-    WEEK  = "Week"
+    """Frequency categories defined by the ontology."""
+
+    WEEK = "Week"
     MONTH = "Month"
     TOTAL = "Total"
 
 
-"AmountType"
 class ValueContext(str, Enum):
-    """Whether the amount is before tax (gross) or after (net).
+    """Whether the amount is before tax or after tax."""
 
-    Not yet in the ontology — proposed extension. CSN amounts are gross
-    by convention (no withholding); FK exposes both for Aktivitetsstöd.
-    """
     GROSS = "gross"
-    NET   = "net"
+    NET = "net"
 
-"Amount"
+
 class MonetaryAmount(BaseModel):
     """A unified monetary value with explicit semantics and provenance."""
 
-    value:     Decimal       = Field(..., description="Numeric amount")
-    currency:  str           = Field(default="SEK", description="ISO 4217 code")
-    frequency: Frequency     = Field(..., description="Per week / month / total")
-    context:   Optional[ValueContext] = Field(
-        default=None,
-        description="gross/net distinction (None = unspecified)",
+    value: Decimal = Field(
+        ...,
+        description="Numeric monetary amount",
     )
 
-    # Provenance — required so every Amount can be traced
-    source_file:      str
-    source_field:     str
+    currency: str = Field(
+        default="SEK",
+        description="ISO 4217 currency code",
+    )
+
+    frequency: Frequency = Field(
+        ...,
+        description="Whether the amount is per week, per month, or a total",
+    )
+
+    context: Optional[ValueContext] = Field(
+        default=None,
+        description="Gross/net distinction; None means unspecified",
+    )
+
+    source_value: str = Field(
+        ...,
+        description="Original source value used to create the monetary amount",
+    )
+
+    source_description: Optional[str] = Field(
+        default=None,
+        description="Optional human-readable explanation from the source",
+    )
+
+    # Provenance
+    source_file: str
+    source_field: str = Field(
+        ...,
+        description="Original CSV field used to infer the monetary amount",
+    )
     source_record_id: str = Field(
         ...,
-        description="Stable identifier for the originating row "
-                    "(row index or a composite of join keys)",
+        description="Stable identifier for the originating row",
     )
 
     @field_validator("value")
     @classmethod
-    def value_must_be_non_negative(cls, v: Decimal) -> Decimal:
-        if v < 0:
+    def value_must_be_non_negative(cls, value: Decimal) -> Decimal:
+        if value < 0:
             raise ValueError("MonetaryAmount.value cannot be negative")
-        return v
+        return value
+
+    @field_validator("currency")
+    @classmethod
+    def currency_must_be_valid_code(cls, value: str) -> str:
+        value = value.strip().upper()
+        if len(value) != 3:
+            raise ValueError("MonetaryAmount.currency must be a 3-letter ISO code")
+        return value
+
+    @field_validator(
+        "source_value",
+        "source_file",
+        "source_field",
+        "source_record_id",
+    )
+    @classmethod
+    def required_text_values_must_not_be_empty(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Required MonetaryAmount source/provenance values cannot be empty")
+        return value
 
     def __str__(self) -> str:
-        ctx = f" {self.context.value}" if self.context else ""
-        return f"{self.value:,.0f} {self.currency}/{self.frequency.value}{ctx}"
+        context = f" {self.context.value}" if self.context else ""
+        return f"{self.value:,.0f} {self.currency}/{self.frequency.value}{context}"
+
+
+def demo_model() -> None:
+    print("=" * 64)
+    print("MonetaryAmount Pydantic model")
+    print("=" * 64)
+    print()
+
+    print("This model defines the required backend structure for MonetaryAmount.")
+    print("It ensures that each output has:")
+    print("  - one numeric monetary value")
+    print("  - a currency")
+    print("  - one frequency")
+    print("  - optional gross/net context")
+    print("  - the original source value")
+    print("  - optional source description")
+    print("  - provenance back to file, field, and row")
+    print()
+
+    print("Allowed frequency values:")
+    for value in Frequency:
+        print(f"  - {value.value}")
+
+    print()
+    print("Allowed context values:")
+    for value in ValueContext:
+        print(f"  - {value.value}")
+
+    print()
+    print("Example validated instance:")
+    print()
+
+    example = MonetaryAmount(
+        value=Decimal("12500"),
+        currency="SEK",
+        frequency=Frequency.MONTH,
+        context=ValueContext.NET,
+        source_value="12500",
+        source_description="FK monthly net payment after tax withholding",
+        source_file="fk_payment.csv",
+        source_field="net_sek",
+        source_record_id="row0",
+    )
+
+    print(example.model_dump_json(indent=2))
+
+
+if __name__ == "__main__":
+    demo_model()
