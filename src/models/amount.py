@@ -35,6 +35,7 @@ class Frequency(str, Enum):
     TOTAL = "Total"
 
 
+"AmountType"
 class ValueContext(str, Enum):
     """Whether the amount is before tax (gross) or after (net).
 
@@ -44,7 +45,7 @@ class ValueContext(str, Enum):
     GROSS = "gross"
     NET   = "net"
 
-
+"Amount"
 class MonetaryAmount(BaseModel):
     """A unified monetary value with explicit semantics and provenance."""
 

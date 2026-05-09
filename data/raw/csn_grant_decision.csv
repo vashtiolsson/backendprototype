@@ -1,0 +1,16 @@
+personal_id,decision_type,study_mode,scope_pct,period_start_week,period_end_week,grant_code,status
+20000421-1234,Grant,Distance,50,202617,202627,GRUNDB,Initiated
+19910116-2824,Grant,On-campus,50,202617,202637,GRUNDB,Initiated
+19670118-4657,Grant,Distance,75,202635,202651,GRUNDB,Initiated
+19710709-1488,Grant,On-campus,50,202603,202623,GRUNDB,Initiated
+19671024-5557,Grant,On-campus,100,202605,202621,GRUNDB,Initiated
+19640218-2674,Grant,On-campus,100,202634,202651,GRUNDB,Initiated
+19780806-7201,Grant,Distance,75,202604,202616,GRUNDB,Initiated
+19941023-2169,Grant,On-campus,75,202617,202635,GRUNDB,Initiated
+20030612-1916,Grant,On-campus,75,202605,202622,GRUNDB,Initiated
+19661228-6168,Grant,Hybrid,75,202605,202625,GRUNDB,Initiated
+19630526-8517,Grant,Hybrid,75,202634,202648,GRUNDB,Initiated
+19760904-3266,Grant,On-campus,75,202634,202647,GRUNDB,Initiated
+20020523-1771,Grant,Hybrid,100,202617,202628,GRUNDB,Initiated
+19650920-1188,Grant,Distance,50,202604,202616,GRUNDB,Initiated
+20050403-6038,Grant,On-campus,75,202604,202620,GRUNDB,Initiated

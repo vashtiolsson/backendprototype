@@ -1,62 +1,92 @@
 {
   "concept": "Amount",
   "ontology_iri": "http://uva.thesis/ontologies/income#amount",
-  "description": "Maps source fields containing monetary values to the Amount concept (MonetaryAmount). Every rule must specify frequency and (where applicable) gross/net context, because the same numeric value means different things across sources.",
-  "version": "0.1.0-handmapped",
+  "description": "Maps source fields containing monetary values to the Amount concept (MonetaryAmount). Each rule specifies how a source-specific numeric field should be interpreted in the shared ontology, including currency, frequency and value context.",
+  "version": "0.2.0-reasoner-aligned",
   "rules": [
     {
       "source_file": "fk_payment.csv",
+      "source_field": "gross_sek",
+      "target_class": "MonetaryAmount",
+      "target_property": "value",
+      "transformation": "identity",
+      "currency": "SEK",
+      "frequency": "Month",
+      "context": "gross",
+      "reasoner_confidence": 1.1,
+      "rationale": "The reasoner identified gross_sek as a monetary field because the column name suggests an amount, samples are numeric, and SEK is inferred from the column name. Although frequency was unclear to the reasoner, the FK payment file represents monthly payment rows, so the mapper enriches this as Month."
+    },
+    {
+      "source_file": "fk_payment.csv",
       "source_field": "net_sek",
+      "target_class": "MonetaryAmount",
+      "target_property": "value",
       "transformation": "identity",
       "currency": "SEK",
       "frequency": "Month",
       "context": "net",
-      "rationale": "FK pays Aktivitetsstöd as monthly utbetalningar. net_sek is the amount the citizen actually receives after tax withholding. Each row is one monthly payment, so summing all rows for a person yields the total received during the period."
+      "reasoner_confidence": 1.1,
+      "rationale": "The reasoner identified net_sek as a monetary field and inferred amount type Net. The mapper records it as the monthly amount received after tax withholding."
     },
     {
       "source_file": "fk_payment.csv",
-      "source_field": "gross_sek",
+      "source_field": "tax_withheld_sek",
+      "target_class": "MonetaryAmount",
+      "target_property": "value",
       "transformation": "identity",
       "currency": "SEK",
       "frequency": "Month",
-      "context": "gross",
-      "rationale": "FK records the gross monthly amount before tax withholding (per Tabell 55+56 in SSBTEK v11)."
+      "context": "tax_withheld",
+      "reasoner_confidence": 1.1,
+      "rationale": "The reasoner identified tax_withheld_sek as monetary due to numeric values and SEK in the field name, but amount type was unclear. The mapper gives it a semantic context as the monthly tax withheld from the gross payment."
     },
     {
       "source_file": "fk_period_benefit_decision.csv",
       "source_field": "gross_amount_sek",
+      "target_class": "MonetaryAmount",
+      "target_property": "value",
       "transformation": "identity",
       "currency": "SEK",
       "frequency": "Total",
       "context": "gross",
-      "rationale": "Per current synthetic data, the value stored represents the gross total for the entire decision period. Once the synthetic generator is corrected to per-period (Periodicitet=1, Monthly), this rule should change to frequency=Month."
+      "reasoner_confidence": 1.1,
+      "rationale": "The reasoner identified gross_amount_sek as monetary and inferred Gross. The mapper interprets it as a gross total for the decision period in the current synthetic data."
+    },
+    {
+      "source_file": "fk_period_benefit_decision.csv",
+      "source_field": "coordinated_gross_amount_sek",
+      "target_class": "MonetaryAmount",
+      "target_property": "value",
+      "transformation": "identity",
+      "currency": "SEK",
+      "frequency": "Total",
+      "context": "gross",
+      "reasoner_confidence": 1.1,
+      "rationale": "The reasoner identified coordinated_gross_amount_sek as monetary and inferred Gross. The mapper records it as the coordinated gross total for the decision period."
     },
     {
       "source_file": "csn_approved_amounts.csv",
       "source_field": "amount_per_week_sek",
+      "target_class": "MonetaryAmount",
+      "target_property": "value",
       "transformation": "identity",
       "currency": "SEK",
       "frequency": "Week",
       "context": "gross",
-      "rationale": "CSN denominates approved amounts per ISO week (per Tabell 21). Both GRUNDB (bidrag/grant) and GRUNDL (lån/loan) are reported in this format."
+      "reasoner_confidence": 1.1,
+      "rationale": "The reasoner identified amount_per_week_sek as monetary and inferred frequency Week. The mapper stores it as a weekly CSN approved amount."
     },
     {
       "source_file": "csn_approved_amounts.csv",
       "source_field": "total_amount_sek",
+      "target_class": "MonetaryAmount",
+      "target_property": "value",
       "transformation": "identity",
       "currency": "SEK",
       "frequency": "Total",
       "context": "gross",
-      "rationale": "CSN provides a precomputed total per amount type for the approved period. This is what the unified view should display as the headline number for a CSN study aid line."
-    },
-    {
-      "source_file": "csn_approved_period.csv",
-      "source_field": "total_amount_sek",
-      "transformation": "identity",
-      "currency": "SEK",
-      "frequency": "Total",
-      "context": "gross",
-      "rationale": "CSN also reports a combined total at the period level (sum of GRUNDB + GRUNDL). Useful as a cross-check against the per-type totals."
+      "reasoner_confidence": 1.1,
+      "rationale": "The reasoner identified total_amount_sek as monetary and inferred frequency Total. The mapper stores it as the total CSN amount for the approved period."
     }
   ]
 }

@@ -1,0 +1,365 @@
+@prefix : <http://www.semanticweb.org/vashti.ow/ontologies/2026/4/untitled-ontology-2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.semanticweb.org/vashti.ow/ontologies/2026/4/untitled-ontology-2/> .
+
+<http://uva.thesis/ontologies/income> rdf:type owl:Ontology .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://uva.thesis/ontologies/income#AmountProperties
+:AmountProperties rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf owl:topObjectProperty .
+
+
+###  http://uva.thesis/ontologies/income#IncomeProperties
+:IncomeProperties rdf:type owl:ObjectProperty .
+
+
+###  http://uva.thesis/ontologies/income#OccupationProperties
+:OccupationProperties rdf:type owl:ObjectProperty .
+
+
+###  http://uva.thesis/ontologies/income#PersonProperties
+:PersonProperties rdf:type owl:ObjectProperty .
+
+
+###  http://uva.thesis/ontologies/income#StatusProperties
+:StatusProperties rdf:type owl:ObjectProperty .
+
+
+###  http://uva.thesis/ontologies/income#SupportTypeProperties
+:SupportTypeProperties rdf:type owl:ObjectProperty .
+
+
+###  http://uva.thesis/ontologies/income#hasAmount
+:hasAmount rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf :IncomeProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasAmountType
+:hasAmountType rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf :AmountProperties ;
+               rdfs:domain :Amount ;
+               rdfs:range :AmountType .
+
+
+###  http://uva.thesis/ontologies/income#hasCurrency
+:hasCurrency rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf :AmountProperties ;
+             rdfs:domain :Amount ;
+             rdfs:range :Currency .
+
+
+###  http://uva.thesis/ontologies/income#hasIncome
+:hasIncome rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf :PersonProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasOccupation
+:hasOccupation rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf :IncomeProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasOccupationType
+:hasOccupationType rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf :OccupationProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasPaymentFrequency
+:hasPaymentFrequency rdf:type owl:ObjectProperty ;
+                     rdfs:subPropertyOf :AmountProperties ;
+                     rdfs:domain :Amount ;
+                     rdfs:range :PaymentFrequency .
+
+
+###  http://uva.thesis/ontologies/income#hasStatus
+:hasStatus rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf :IncomeProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasStatusType
+:hasStatusType rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf :StatusProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasStudySupport
+:hasStudySupport rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf :SupportTypeProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasSupportType
+:hasSupportType rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf :IncomeProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasTimePeriod
+:hasTimePeriod rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf :IncomeProperties .
+
+
+###  http://uva.thesis/ontologies/income#hasWorkSupport
+:hasWorkSupport rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf :SupportTypeProperties .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://uva.thesis/ontologies/income#AmountProperty
+:AmountProperty rdf:type owl:DatatypeProperty ;
+                rdfs:subPropertyOf owl:topDataProperty .
+
+
+###  http://uva.thesis/ontologies/income#PersonProperties
+:PersonProperties rdf:type owl:DatatypeProperty .
+
+
+###  http://uva.thesis/ontologies/income#TimeProperties
+:TimeProperties rdf:type owl:DatatypeProperty .
+
+
+###  http://uva.thesis/ontologies/income#hasEndDate
+:hasEndDate rdf:type owl:DatatypeProperty ;
+            rdfs:subPropertyOf :TimeProperties ;
+            rdfs:range xsd:string .
+
+
+###  http://uva.thesis/ontologies/income#hasId
+:hasId rdf:type owl:DatatypeProperty ;
+       rdfs:subPropertyOf :PersonProperties ;
+       rdfs:range xsd:string .
+
+
+###  http://uva.thesis/ontologies/income#hasName
+:hasName rdf:type owl:DatatypeProperty ;
+         rdfs:subPropertyOf :PersonProperties ;
+         rdfs:range xsd:string .
+
+
+###  http://uva.thesis/ontologies/income#hasStartDate
+:hasStartDate rdf:type owl:DatatypeProperty ;
+              rdfs:subPropertyOf :TimeProperties ;
+              rdfs:range xsd:string .
+
+
+###  http://uva.thesis/ontologies/income#hasValue
+:hasValue rdf:type owl:DatatypeProperty ;
+          rdfs:subPropertyOf :AmountProperty ;
+          rdfs:range xsd:decimal .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://uva.thesis/ontologies/income#Amount
+:Amount rdf:type owl:Class ;
+        rdfs:comment ""@en ,
+                     "A sum of money expressed as a numeric value in a specific currency, with a defined frequency (e.g., per month, per week, or as a total). Used to represent the financial value associated with an Income." ;
+        rdfs:label "Amount" .
+
+
+###  http://uva.thesis/ontologies/income#AmountType
+:AmountType rdf:type owl:Class ;
+            rdfs:subClassOf :Amount .
+
+
+###  http://uva.thesis/ontologies/income#Currency
+:Currency rdf:type owl:Class ;
+          rdfs:subClassOf :Amount .
+
+
+###  http://uva.thesis/ontologies/income#Occupation
+:Occupation rdf:type owl:Class ;
+            rdfs:comment ""@en ,
+                         "The Person's primary activity status during the period of an Income — for example, job-seeker, student, or employed. May be explicitly recorded or inferred from source system fields." ;
+            rdfs:label "Occupation" .
+
+
+###  http://uva.thesis/ontologies/income#OccupationType
+:OccupationType rdf:type owl:Class ;
+                rdfs:subClassOf :Occupation .
+
+
+###  http://uva.thesis/ontologies/income#PaymentFrequency
+:PaymentFrequency rdf:type owl:Class ;
+                  rdfs:subClassOf :Amount .
+
+
+###  http://uva.thesis/ontologies/income#Person
+:Person rdf:type owl:Class ;
+        rdfs:comment ""@en ,
+                     "A natural person — a citizen who interacts with public-sector services and may be the subject of one or more income records across different authorities." ;
+        rdfs:label "Person" .
+
+
+###  http://uva.thesis/ontologies/income#Status
+:Status rdf:type owl:Class ;
+        rdfs:comment ""@en ,
+                     "The state of an Income record — for example, active, inactive, approved, initiated, or planned. Reflects the lifecycle of the support or decision in the source authority's system." ;
+        rdfs:label "Status" .
+
+
+###  http://uva.thesis/ontologies/income#StatusType
+:StatusType rdf:type owl:Class ;
+            rdfs:subClassOf :Status .
+
+
+###  http://uva.thesis/ontologies/income#StudySupport
+:StudySupport rdf:type owl:Class ;
+              rdfs:subClassOf :SupportType ;
+              owl:disjointWith :WorkSupport .
+
+
+###  http://uva.thesis/ontologies/income#SupportType
+:SupportType rdf:type owl:Class ;
+             rdfs:comment ""@en ,
+                          "The category of financial support a Person receives, such as activity support, study grant, or study loan. Reflects the legal or administrative classification used by the granting authority." .
+
+
+###  http://uva.thesis/ontologies/income#TimePeriod
+:TimePeriod rdf:type owl:Class ;
+            rdfs:comment ""@en ,
+                         "A bounded interval of time defined by a start date and an end date. Used to express the duration over which an Income is valid, paid, or approved." ;
+            rdfs:label "Time Period" .
+
+
+###  http://uva.thesis/ontologies/income#WorkSupport
+:WorkSupport rdf:type owl:Class ;
+             rdfs:subClassOf :SupportType .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://uva.thesis/ontologies/income#Active
+:Active rdf:type owl:NamedIndividual ,
+                 :StatusType ;
+        rdfs:label "Active"@en .
+
+
+###  http://uva.thesis/ontologies/income#ActivitySupport
+:ActivitySupport rdf:type owl:NamedIndividual ,
+                          :WorkSupport .
+
+
+###  http://uva.thesis/ontologies/income#Approved
+:Approved rdf:type owl:NamedIndividual ,
+                   :StatusType ;
+          rdfs:label "Approved"@en .
+
+
+###  http://uva.thesis/ontologies/income#EUR
+:EUR rdf:type owl:NamedIndividual .
+
+
+###  http://uva.thesis/ontologies/income#Employed
+:Employed rdf:type owl:NamedIndividual ;
+          rdfs:label "Employed"@en .
+
+
+###  http://uva.thesis/ontologies/income#Gross
+:Gross rdf:type owl:NamedIndividual ,
+                :AmountType .
+
+
+###  http://uva.thesis/ontologies/income#Inactive
+:Inactive rdf:type owl:NamedIndividual ,
+                   :StatusType ;
+          rdfs:label "Inactive"@en .
+
+
+###  http://uva.thesis/ontologies/income#Initiated
+:Initiated rdf:type owl:NamedIndividual ,
+                    :StatusType ;
+           rdfs:label "Inititated"@en .
+
+
+###  http://uva.thesis/ontologies/income#Jane
+:Jane rdf:type owl:NamedIndividual ;
+      rdfs:label "Jane Doe"@en .
+
+
+###  http://uva.thesis/ontologies/income#Jane_AS
+:Jane_AS rdf:type owl:NamedIndividual ;
+         rdfs:label "Jane AS"@en .
+
+
+###  http://uva.thesis/ontologies/income#JobSeeker
+:JobSeeker rdf:type owl:NamedIndividual ,
+                    :OccupationType .
+
+
+###  http://uva.thesis/ontologies/income#Month
+:Month rdf:type owl:NamedIndividual ;
+       rdfs:label "Month"@en .
+
+
+###  http://uva.thesis/ontologies/income#Monthly
+:Monthly rdf:type owl:NamedIndividual ,
+                  :PaymentFrequency .
+
+
+###  http://uva.thesis/ontologies/income#Net
+:Net rdf:type owl:NamedIndividual ,
+              :AmountType .
+
+
+###  http://uva.thesis/ontologies/income#OccupationType
+:OccupationType rdf:type owl:NamedIndividual .
+
+
+###  http://uva.thesis/ontologies/income#Planned
+:Planned rdf:type owl:NamedIndividual ,
+                  :StatusType ;
+         rdfs:label "Planned"@en .
+
+
+###  http://uva.thesis/ontologies/income#SEK
+:SEK rdf:type owl:NamedIndividual ,
+              :Currency .
+
+
+###  http://uva.thesis/ontologies/income#Student
+:Student rdf:type owl:NamedIndividual ,
+                  :OccupationType .
+
+
+###  http://uva.thesis/ontologies/income#StudyGrant
+:StudyGrant rdf:type owl:NamedIndividual ,
+                     :StudySupport .
+
+
+###  http://uva.thesis/ontologies/income#StudyLoan
+:StudyLoan rdf:type owl:NamedIndividual ,
+                    :StudySupport .
+
+
+###  http://uva.thesis/ontologies/income#Total
+:Total rdf:type owl:NamedIndividual ,
+                :PaymentFrequency .
+
+
+###  http://uva.thesis/ontologies/income#Totall
+:Totall rdf:type owl:NamedIndividual .
+
+
+###  http://uva.thesis/ontologies/income#Week
+:Week rdf:type owl:NamedIndividual ;
+      rdfs:label "Week"@en .
+
+
+###  http://uva.thesis/ontologies/income#Weekly
+:Weekly rdf:type owl:NamedIndividual ,
+                 :PaymentFrequency .
+
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi
