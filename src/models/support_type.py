@@ -4,54 +4,128 @@ Target schema for the SupportType concept.
 A SupportType is the unified representation of the type of support, benefit,
 grant, loan, or financial assistance described by a source authority.
 
-Source datasets express support types differently:
+Different authorities express support types differently:
 
-  • AF uses benefit_type to describe support such as "Activity support".
-  • FK uses benefit_type and benefit_group_code to describe benefit categories.
-  • CSN uses support_type, support_form_code, amount_type_code, and grant_code
-    to describe study-support related support types such as grants and loans.
+  - AF may use benefit_type, such as "Activity support".
+  - FK may use benefit_group_code, such as "FK:AS".
+  - CSN may use support_type, support_form_code, decision_type,
+    or amount_type_code, such as "GRUNDB" or "GRUNDL".
 
-The model explicitly captures:
-
-  • support_type — the ontology-level support category.
-
-  • source_value — the original value found in the CSV, such as
-    "Activity support", "FK:AS", "student_grant", "GRUNDB", or "GRUNDL".
-
-  • source_description — optional human-readable explanation from the source,
-    such as support_form_description or amount_type_label.
-
-  • provenance (source_file + source_field + source_record_id) — every
-    SupportType instance can be traced back to the exact row and field it came
-    from. This lets the demo show *why* a support type was created.
-
-Mirrors the ontology's :SupportType concept with provenance metadata and
-source-level explanation fields needed for reliable transformation and
-explainability.
+This model stores:
+  1. the concrete ontology-level support type,
+  2. the broader ontology support group,
+  3. provenance showing where the interpretation came from, and
+  4. mapping trace information showing which rule created the interpretation.
 """
+
+from __future__ import annotations
 
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class SupportTypeValue(str, Enum):
+    """Allowed concrete ontology-level support type individuals."""
+
     ACTIVITY_SUPPORT = "ActivitySupport"
-    STUDENT_GRANT = "StudyGrant"
-    STUDENT_LOAN = "StudyLoan"
+    STUDY_GRANT = "StudyGrant"
+    STUDY_LOAN = "StudyLoan"
+
+
+class SupportGroupValue(str, Enum):
+    """Allowed broader ontology-level support groups."""
+
     STUDY_SUPPORT = "StudySupport"
+    WORK_SUPPORT = "WorkSupport"
 
 
 class SupportType(BaseModel):
-    support_type: SupportTypeValue = Field(...)
-    source_value: str
-    source_description: Optional[str] = None
+    """Ontology-aligned support type with source provenance and mapping trace."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    support_type: SupportTypeValue = Field(
+        ...,
+        description="Concrete ontology-level support type",
+    )
+
+    support_group: SupportGroupValue = Field(
+        ...,
+        description="Broader ontology class, such as StudySupport or WorkSupport",
+    )
+
+    source_value: str = Field(
+        ...,
+        description="Original source value used to infer the support type",
+    )
+
+    source_description: Optional[str] = Field(
+        default=None,
+        description="Optional human-readable source description",
+    )
 
     # Provenance
-    source_file: str
-    source_field: str
-    source_record_id: str
+    source_file: str = Field(
+        ...,
+        description="Source CSV file",
+    )
+
+    source_field: str = Field(
+        ...,
+        description="Source CSV field",
+    )
+
+    source_record_id: str = Field(
+        ...,
+        description="Stable row identifier in the source file",
+    )
+
+    # Mapping trace
+    mapping_rule_id: str = Field(
+        ...,
+        description="ID of the approved mapping rule that created this object",
+    )
+
+    mapping_rationale: Optional[str] = Field(
+        default=None,
+        description="Human-readable rationale from the approved mapping rule",
+    )
+
+    @field_validator(
+        "source_value",
+        "source_file",
+        "source_field",
+        "source_record_id",
+        "mapping_rule_id",
+    )
+    @classmethod
+    def required_text_must_not_be_empty(cls, value: str) -> str:
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Required SupportType provenance values cannot be empty")
+
+        return value
+
+    @model_validator(mode="after")
+    def support_type_must_match_support_group(self) -> "SupportType":
+        expected_groups = {
+            SupportTypeValue.STUDY_GRANT: SupportGroupValue.STUDY_SUPPORT,
+            SupportTypeValue.STUDY_LOAN: SupportGroupValue.STUDY_SUPPORT,
+            SupportTypeValue.ACTIVITY_SUPPORT: SupportGroupValue.WORK_SUPPORT,
+        }
+
+        expected_group = expected_groups[self.support_type]
+
+        if self.support_group != expected_group:
+            raise ValueError(
+                f"{self.support_type.value} must belong to {expected_group.value}, "
+                f"not {self.support_group.value}"
+            )
+
+        return self
 
     def __str__(self) -> str:
         return self.support_type.value
@@ -63,29 +137,16 @@ def demo_model() -> None:
     print("=" * 64)
     print()
 
-    print("This model defines the required backend structure for SupportType.")
-    print("It ensures that each output has:")
-    print("  - one ontology-level support type")
-    print("  - the original source value")
-    print("  - optional source description")
-    print("  - provenance back to file, field, and row")
-    print()
-
-    print("Allowed enum values:")
-    for value in SupportTypeValue:
-        print(f"  - {value.value}")
-
-    print()
-    print("Example validated instance:")
-    print()
-
     example = SupportType(
-        support_type=SupportTypeValue.STUDENT_GRANT,
+        support_type=SupportTypeValue.STUDY_GRANT,
+        support_group=SupportGroupValue.STUDY_SUPPORT,
         source_value="GRUNDB",
-        source_description="CSN student grant",
+        source_description="Grant",
         source_file="csn_approved_amounts.csv",
         source_field="amount_type_code",
         source_record_id="row0",
+        mapping_rule_id="support.csn.approved_amounts.amount_type_code",
+        mapping_rationale="GRUNDB represents the grant component and maps to StudyGrant.",
     )
 
     print(example.model_dump_json(indent=2))
