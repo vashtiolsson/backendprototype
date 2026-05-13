@@ -2,20 +2,15 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "raw"
 
-
-# The reasoner should not output 1.0 because it is making
-# an evidence-based field detection, not a guaranteed truth.
 MAX_REASONER_CONFIDENCE = 0.95
 
 
-# Fields that are likely to contain SupportType information.
-# The weight shows how strong the signal is.
 SUPPORT_TYPE_FIELD_PATTERNS = {
     "benefit_type": 0.65,
     "benefit_group_code": 0.65,
@@ -30,11 +25,10 @@ SUPPORT_TYPE_FIELD_PATTERNS = {
 }
 
 
-# These are exact field names that are likely not SupportType fields.
-# Important: "amount" is only negative when it is the exact field name,
-# not when it appears in "amount_type_code".
 NEGATIVE_EXACT_FIELDS = {
     "personal_id",
+    "person_id",
+    "pnr",
     "case_id",
     "decision_id",
     "payment_id",
@@ -60,8 +54,6 @@ NEGATIVE_EXACT_FIELDS = {
 }
 
 
-# These fields may explain a source value, but should usually not be used
-# as the main source_value.
 DESCRIPTION_OR_LABEL_KEYWORDS = [
     "description",
     "label",
@@ -70,13 +62,13 @@ DESCRIPTION_OR_LABEL_KEYWORDS = [
 ]
 
 
-# Known source values or codes that indicate support type information.
 KNOWN_SUPPORT_VALUES = {
     "activity support",
     "fk:as",
+    "as",
     "student_grant",
     "study_grant",
-    "student_grant",
+    "student_loan",
     "study_loan",
     "grant",
     "loan",
@@ -86,10 +78,18 @@ KNOWN_SUPPORT_VALUES = {
 }
 
 
+def _read_csv(file_path: Path) -> list[dict[str, Any]]:
+    """Read a CSV file into row dictionaries."""
+
+    with open(file_path, encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        return list(reader)
+
+
 def read_csv_samples(file_path: Path, sample_size: int = 30) -> dict[str, list[str]]:
     """Read a small sample of values from each CSV column."""
 
-    with open(file_path, encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
 
         if reader.fieldnames is None:
@@ -196,10 +196,6 @@ def infer_description_field(
 ) -> str | None:
     """
     Try to find a human-readable description field connected to the source field.
-
-    Example:
-      amount_type_code -> amount_type_label
-      support_form_code -> support_form_description
     """
 
     source_lower = source_field.lower()
@@ -207,7 +203,6 @@ def infer_description_field(
 
     candidates: list[str] = []
 
-    # Specific common source-pair patterns.
     specific_candidates = {
         "amount_type_code": [
             "amount_type_label",
@@ -237,7 +232,6 @@ def infer_description_field(
 
     candidates.extend(specific_candidates.get(source_lower, []))
 
-    # Generic pattern: something_code -> something_label / something_description.
     if source_lower.endswith("_code"):
         stem = source_lower.removesuffix("_code")
         candidates.extend(
@@ -249,7 +243,6 @@ def infer_description_field(
             ]
         )
 
-    # Generic pattern: something_type -> something_type_label / description.
     if source_lower.endswith("_type"):
         candidates.extend(
             [
@@ -263,6 +256,45 @@ def infer_description_field(
             return columns_by_lower[candidate]
 
     return None
+
+
+def suggest_support_type_value_map(sample_values: list[Any]) -> dict[str, str]:
+    """
+    Suggest source-value to ontology-value mappings.
+
+    These are suggestions only. The frontend Mapping Workbench can edit them.
+    """
+
+    suggestions: dict[str, str] = {}
+
+    known_values = {
+        "GRUNDB": "StudyGrant",
+        "GRUNDL": "StudyLoan",
+        "AS": "ActivitySupport",
+        "Activity support": "ActivitySupport",
+        "activity support": "ActivitySupport",
+        "Study grant": "StudyGrant",
+        "Study loan": "StudyLoan",
+        "student_grant": "StudyGrant",
+        "student_loan": "StudyLoan",
+        "study_grant": "StudyGrant",
+        "study_loan": "StudyLoan",
+        "grant": "StudyGrant",
+        "loan": "StudyLoan",
+    }
+
+    for value in sample_values:
+        if value is None or value == "":
+            continue
+
+        text_value = str(value).strip()
+
+        if text_value in suggestions:
+            continue
+
+        suggestions[text_value] = known_values.get(text_value, "UnknownNeedsReview")
+
+    return suggestions
 
 
 def classify_support_type_field(
@@ -318,6 +350,141 @@ def classify_support_type_field(
         "confidence": confidence,
         "matched_values": matched_values,
         "reason": "; ".join(reasons),
+        "reasons": reasons,
+        "scoring": [
+            {
+                "type": "field_name_and_value_match",
+                "score": confidence,
+                "explanation": "; ".join(reasons),
+            }
+        ],
+        "is_main_source_value_field": is_main_source_value_field,
+    }
+
+
+def run_support_type_reasoner(
+    person_id: str = "20000421-1234",
+    data_dir: Optional[Path] = None,
+) -> dict[str, Any]:
+    """
+    Run the SupportType reasoner on uploaded or raw CSV files.
+
+    This is the function imported by api.py.
+    It returns frontend-ready fields for the Mapping Workbench.
+    """
+
+    if data_dir is None:
+        data_dir = DATA_DIR
+
+    print(f"[REASONER] Scanning folder: {data_dir}", flush=True)
+    print(f"[REASONER] Looking for person_id: {person_id}", flush=True)
+
+    fields: list[dict[str, Any]] = []
+    considered_fields: list[dict[str, Any]] = []
+    other_fields: list[dict[str, Any]] = []
+
+    csv_files = sorted(data_dir.glob("*.csv"))
+
+    print(f"[REASONER] CSV files found: {len(csv_files)}", flush=True)
+
+    for csv_file in csv_files:
+        print(f"[REASONER] Reading file: {csv_file.name}", flush=True)
+
+        rows = _read_csv(csv_file)
+
+        if not rows:
+            print(f"[REASONER] Skipped empty file: {csv_file.name}", flush=True)
+            continue
+
+        all_columns = list(rows[0].keys())
+
+        person_rows = [
+            row for row in rows
+            if row.get("personal_id") == person_id
+            or row.get("person_id") == person_id
+            or row.get("pnr") == person_id
+        ]
+
+        print(
+            f"[REASONER] Rows for person in {csv_file.name}: {len(person_rows)}",
+            flush=True,
+        )
+
+        # Prefer Jane/person-specific rows.
+        # If this file does not contain Jane, fall back to all rows so the file
+        # can still be inspected.
+        sample_rows = person_rows if person_rows else rows
+
+        for column_name in all_columns:
+            sample_values = [
+                row.get(column_name)
+                for row in sample_rows
+                if row.get(column_name) not in [None, ""]
+            ]
+
+            if not sample_values:
+                continue
+
+            classification = classify_support_type_field(
+                source_file=csv_file.name,
+                column_name=column_name,
+                sample_values=sample_values[:30],
+                all_columns=all_columns,
+            )
+
+            confidence = classification.get("confidence", 0)
+
+            if classification.get("is_main_source_value_field"):
+                print(
+                    f"[REASONER] ACCEPTED: {csv_file.name}.{column_name} "
+                    f"confidence={confidence}",
+                    flush=True,
+                )
+
+                fields.append(
+                    {
+                        "id": len(fields),
+                        "name": column_name,
+                        "file": csv_file.name,
+                        "type": "categorical",
+                        "status": "accepted",
+                        "color": "teal",
+                        "concept": "SupportType",
+                        "confidence": confidence,
+                        "threshold": 0.6,
+                        "samples": sample_values[:10],
+                        "source_values": sorted(set(str(v) for v in sample_values)),
+                        "suggested_target_value_map": suggest_support_type_value_map(
+                            sample_values
+                        ),
+                        "rationale": classification.get("reason", ""),
+                        "scoring": classification.get("scoring", []),
+                        "source_description_field": classification.get(
+                            "source_description_field"
+                        ),
+                        "mapping_rule_id": (
+                            f"{csv_file.stem}_{column_name}_to_support_type"
+                        ),
+                    }
+                )
+            else:
+                considered_fields.append(
+                    {
+                        "file": csv_file.name,
+                        "field": column_name,
+                        "confidence": confidence,
+                        "samples": sample_values[:5],
+                        "whyRejected": "Not selected as main SupportType field.",
+                        "rationale": classification.get("reason", ""),
+                    }
+                )
+
+    print(f"[REASONER] Finished. Accepted fields: {len(fields)}", flush=True)
+
+    return {
+        "fields": fields,
+        "considered_fields": considered_fields,
+        "other_fields": other_fields,
     }
 
 

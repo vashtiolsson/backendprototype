@@ -15,7 +15,7 @@ import csv
 import json
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import ValidationError
 
@@ -59,7 +59,7 @@ def load_mappings(path: Path = MAPPINGS_FILE) -> list[dict[str, Any]]:
     return json.loads(path.read_text(encoding="utf-8"))["rules"]
 
 
-def _safe_text(value: Any) -> str | None:
+def _safe_text(value: Any) -> Optional[str]:
     """Normalize a source text value without changing its meaning."""
 
     if value is None:
@@ -73,7 +73,7 @@ def _safe_text(value: Any) -> str | None:
     return value
 
 
-def _normalize_key(value: Any) -> str | None:
+def _normalize_key(value: Any) -> Optional[str]:
     """
     Normalize source values so they can be matched against target_value_map.
 
@@ -110,7 +110,7 @@ def _get_source_value_field(rule: dict[str, Any]) -> str:
     return rule.get("source_value_field") or rule["source_field"]
 
 
-def _get_source_description_field(rule: dict[str, Any]) -> str | None:
+def _get_source_description_field(rule: dict[str, Any]) -> Optional[str]:
     """
     Return the optional source description field.
 
@@ -157,7 +157,7 @@ def _infer_source_record_id(row: dict[str, Any], row_idx: int) -> str:
 def _resolve_target_support_type(
     rule: dict[str, Any],
     source_key: str,
-) -> str | None:
+) -> Optional[str]:
     """
     Resolve the ontology-level support type.
 
@@ -180,7 +180,7 @@ def _resolve_target_support_group(
     rule: dict[str, Any],
     source_key: str,
     target_support_type: str,
-) -> str | None:
+) -> Optional[str]:
     """
     Resolve the broader ontology support group.
 
@@ -204,9 +204,9 @@ def _resolve_target_support_group(
 
 
 def transform_support_type(
-    personal_id: str,
-    mappings: list[dict[str, Any]] | None = None,
-    data_dir: Path = DATA_DIR,
+    personal_id: str = JANE_PNR,
+    mappings: Optional[list[dict[str, Any]]] = None,
+    data_dir: Optional[Path] = None,
 ) -> list[SupportType]:
     """
     Apply SupportType mapping rules to one person's source data.
@@ -218,32 +218,72 @@ def transform_support_type(
       4. lets Pydantic validate the final result.
     """
 
+    if data_dir is None:
+        data_dir = DATA_DIR
+
+    print("\n[TRANSFORMER] Starting SupportType transformation", flush=True)
+    print(f"[TRANSFORMER] Person ID: {personal_id}", flush=True)
+    print(f"[TRANSFORMER] Data directory: {data_dir}", flush=True)
+
     if mappings is None:
+        print(
+            f"[TRANSFORMER] No frontend mappings received. Loading mapping file: {MAPPINGS_FILE}",
+            flush=True,
+        )
         mappings = load_mappings()
+    else:
+        print("[TRANSFORMER] Using approved mappings from frontend/API", flush=True)
+
+    print(f"[TRANSFORMER] Mapping rules received: {len(mappings)}", flush=True)
 
     rules_by_file: dict[str, list[dict[str, Any]]] = defaultdict(list)
 
     for rule in mappings:
         if rule.get("target_class") != "SupportType":
+            print(
+                f"[TRANSFORMER] Skipping non-SupportType rule: {rule.get('id', 'missing-id')}",
+                flush=True,
+            )
             continue
 
-        rules_by_file[rule["source_file"]].append(rule)
+        source_file = rule.get("source_file")
+
+        if not source_file:
+            print(
+                f"[TRANSFORMER] Skipping rule without source_file: {rule}",
+                flush=True,
+            )
+            continue
+
+        rules_by_file[source_file].append(rule)
+
+    print(
+        f"[TRANSFORMER] Files with SupportType rules: {len(rules_by_file)}",
+        flush=True,
+    )
 
     support_types: list[SupportType] = []
 
     for filename, rules in rules_by_file.items():
         path = data_dir / filename
 
+        print(f"[TRANSFORMER] Reading file: {filename}", flush=True)
+
         if not path.exists():
-            print(f"  ⚠  {filename} not found at {path} — skipping")
+            print(f"[TRANSFORMER] ⚠ {filename} not found at {path} — skipping", flush=True)
             continue
 
-        with open(path, encoding="utf-8") as f:
+        with open(path, encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
 
             for row_idx, row in enumerate(reader):
                 if row.get("personal_id") != personal_id:
                     continue
+
+                print(
+                    f"[TRANSFORMER] Found row for person in {filename}, row {row_idx}",
+                    flush=True,
+                )
 
                 for rule in rules:
                     source_field = rule["source_field"]
@@ -254,6 +294,11 @@ def transform_support_type(
                     source_key = _normalize_key(source_value)
 
                     if source_value is None or source_key is None:
+                        print(
+                            f"[TRANSFORMER] Skipping empty source value in "
+                            f"{filename}.{source_value_field}",
+                            flush=True,
+                        )
                         continue
 
                     target_support_type = _resolve_target_support_type(
@@ -262,6 +307,11 @@ def transform_support_type(
                     )
 
                     if target_support_type is None:
+                        print(
+                            f"[TRANSFORMER] No target mapping for "
+                            f"{filename}.{source_field}={source_value!r} — skipping",
+                            flush=True,
+                        )
                         continue
 
                     target_support_group = _resolve_target_support_group(
@@ -272,8 +322,9 @@ def transform_support_type(
 
                     if target_support_group is None:
                         print(
-                            f"  ⚠  No support group found for "
-                            f"{filename}.{source_field}={source_value!r} — skipping"
+                            f"[TRANSFORMER] ⚠ No support group found for "
+                            f"{filename}.{source_field}={source_value!r} — skipping",
+                            flush=True,
                         )
                         continue
 
@@ -298,13 +349,25 @@ def transform_support_type(
 
                     except (ValueError, ValidationError) as error:
                         print(
-                            f"  ⚠  Invalid SupportType transformation skipped: "
-                            f"{filename}.{source_field}={source_value!r}"
+                            f"[TRANSFORMER] ⚠ Invalid SupportType transformation skipped: "
+                            f"{filename}.{source_field}={source_value!r}",
+                            flush=True,
                         )
-                        print(f"     Reason: {error}")
+                        print(f"[TRANSFORMER] Reason: {error}", flush=True)
                         continue
 
                     support_types.append(support_type)
+
+                    print(
+                        f"[TRANSFORMER] Created SupportType: "
+                        f"{source_value!r} -> {target_support_type}",
+                        flush=True,
+                    )
+
+    print(
+        f"[TRANSFORMER] Finished. Created {len(support_types)} SupportType object(s).",
+        flush=True,
+    )
 
     return support_types
 
