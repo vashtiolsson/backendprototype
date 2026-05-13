@@ -1,4 +1,5 @@
 from __future__ import annotations
+from src.reasoner.llm_st import suggest_support_type_mapping
 
 import csv
 from pathlib import Path
@@ -455,8 +456,19 @@ def run_support_type_reasoner(
                         "samples": sample_values[:10],
                         "source_values": sorted(set(str(v) for v in sample_values)),
                         "suggested_target_value_map": suggest_support_type_value_map(
-                            sample_values
-                        ),
+    sample_values
+),
+"llm_suggestions": [
+    suggest_support_type_mapping(
+        source_file=csv_file.name,
+        source_field=column_name,
+        source_value=str(value),
+        sample_values=[str(v) for v in sample_values[:10]],
+        rationale=classification.get("reason", ""),
+    )
+    for value in sorted(set(str(v) for v in sample_values))
+    if suggest_support_type_value_map(sample_values).get(str(value)) == "UnknownNeedsReview"
+],
                         "rationale": classification.get("reason", ""),
                         "scoring": classification.get("scoring", []),
                         "source_description_field": classification.get(

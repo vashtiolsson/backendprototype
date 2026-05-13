@@ -50,27 +50,6 @@ def to_jsonable(value: Any) -> Any:
 def convert_frontend_mappings_to_transformer_rules(
     mappings: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """
-    Convert mappings from the frontend Mapping Workbench into the rule format
-    expected by transform_support_type().
-
-    Frontend/reasoner shape usually looks like:
-      {
-        "file": "csn.csv",
-        "name": "support_form_code",
-        "status": "accepted",
-        "suggested_target_value_map": {"GRUNDB": "StudyGrant"}
-      }
-
-    Transformer rule shape needs to look like:
-      {
-        "target_class": "SupportType",
-        "source_file": "csn.csv",
-        "source_field": "support_form_code",
-        "source_value_field": "support_form_code",
-        "target_value_map": {"GRUNDB": "StudyGrant"}
-      }
-    """
     rules: list[dict[str, Any]] = []
 
     for mapping in mappings:
@@ -84,14 +63,20 @@ def convert_frontend_mappings_to_transformer_rules(
             log_step(f"Skipped mapping without source_file/source_field: {mapping}")
             continue
 
-        value_map = (
-            mapping.get("suggested_target_value_map")
-            or mapping.get("target_value_map")
+        raw_value_map = (
+            mapping.get("target_value_map")
+            or mapping.get("suggested_target_value_map")
             or {}
         )
 
+        value_map = {
+            source_value: target_value
+            for source_value, target_value in raw_value_map.items()
+            if target_value != "UnknownNeedsReview"
+        }
+
         if not value_map:
-            log_step(f"Skipped mapping without value map: {source_file}.{source_field}")
+            log_step(f"Skipped mapping without approved value map: {source_file}.{source_field}")
             continue
 
         rule_id = (
@@ -157,18 +142,6 @@ def root():
     return {"status": "NEW BACKEND IS LIVE"}
 
 
-    return {
-        "output": {
-            "category": body.category,
-            "person_id": person_id,
-            "person": to_jsonable(person),
-            "support_type": to_jsonable(support_types),
-            "amount": to_jsonable(amounts),
-            "time_period": to_jsonable(periods),
-            "status": to_jsonable(statuses),
-            "occupation": to_jsonable(occupations),
-        }
-    }
 
 
 # -----------------------------------------------------------------------------
