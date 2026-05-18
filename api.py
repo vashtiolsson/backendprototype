@@ -545,22 +545,33 @@ def submit_support_type_mapping(body: SubmitMappingRequest):
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error))
 
-    # 6. Transformer. ``persist=True`` writes the result to
-    #    src/storage/transformations/<id>.json and updates the index.
+       # 6. Transformer.
+    # The current transformer does not accept persist=True, so do not pass it here.
     log_step("STEP 7: Running transformer")
     try:
-        transformer_output = transform_support_type_matches(
-            matcher_output,
-            persist=True,
-        )
+        transformer_output = transform_support_type_matches(matcher_output)
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error))
 
-    transformation_id = transformer_output.get("transformation_id")
+    transformation_id = (
+        transformer_output.get("transformation_id")
+        if isinstance(transformer_output, dict)
+        else None
+    )
+
+    object_count = 0
+    if isinstance(transformer_output, dict):
+        object_count = len(
+            transformer_output.get("matches")
+            or transformer_output.get("objects")
+            or transformer_output.get("results")
+            or []
+        )
+
     log_step(
         f"STEP 8: Transformer finished. "
         f"transformation_id={transformation_id} "
-        f"objects={len(transformer_output.get('matches', []))}"
+        f"objects={object_count}"
     )
 
     return {
@@ -580,7 +591,7 @@ def submit_support_type_mapping(body: SubmitMappingRequest):
             "each approved mapping persisted as a user rule",
             "matcher matched person rows against the submitted rules",
             "transformer applied mappings and validated SupportType objects",
-            "transformation persisted to disk",
+            "transformation returned to frontend",
         ],
         "saved_user_rule_ids": saved_rule_ids,
         "approved_rules": approved_rules,

@@ -152,6 +152,35 @@ KNOWN_SUPPORT_SOURCE_VALUES = {
     "grund", "grundb", "grundl",
 }
 
+SOURCE_VALUE_TO_SUPPORT_TYPE = {
+    # Work support
+    "activity support": "ActivitySupport",
+    "activitysupport": "ActivitySupport",
+    "fk:as": "ActivitySupport",
+
+    # Study support
+    "student_grant": "StudyGrant",
+    "study_grant": "StudyGrant",
+    "studygrant": "StudyGrant",
+    "grant": "StudyGrant",
+    "grundb": "StudyGrant",
+
+    "student_loan": "StudyLoan",
+    "study_loan": "StudyLoan",
+    "studyloan": "StudyLoan",
+    "loan": "StudyLoan",
+    "grundl": "StudyLoan",
+
+    # Keep GRUND broad. It should not auto-map.
+    "grund": "UnknownNeedsReview",
+}
+
+SUPPORT_TYPE_TO_GROUP = {
+    "ActivitySupport": "WorkSupport",
+    "StudyGrant": "StudySupport",
+    "StudyLoan": "StudySupport",
+}
+
 NUMERIC_VALUE_RE = re.compile(r"^-?\d+([.,]\d+)?$")
 DATE_VALUE_RE = re.compile(r"^\d{4}-\d{1,2}-\d{1,2}")
 
@@ -408,8 +437,15 @@ def _classify_field_role(
         or value_diagnostics["matched_source_hints"]
     )
 
-    if lower in PRIMARY_SOURCE_FIELD_NAMES and confidence >= ACCEPTANCE_THRESHOLD:
-        return "primary_mapping_field", "field is a strong SupportType source-value candidate"
+    if (
+        lower in PRIMARY_SOURCE_FIELD_NAMES
+        and confidence >= ACCEPTANCE_THRESHOLD
+        and has_value_evidence
+    ):
+        return (
+            "primary_mapping_field",
+            "field is a strong SupportType source-value candidate with known SupportType value evidence",
+        )
 
     if confidence >= ACCEPTANCE_THRESHOLD and has_value_evidence:
         return "review_field", "field has strong evidence but is not in the approved primary field list"
@@ -644,6 +680,54 @@ def get_support_type_model_rules() -> dict[str, Any]:
     }
 
 
+
+def _suggest_target_value(raw_value: Any) -> str:
+    """Suggest an ontology value for one raw source value.
+
+    The reasoner should not invent final mappings, but it can pre-fill obvious
+    source values so the Mapping Workbench does not default valid values such as
+    "Activity support" to UnknownNeedsReview. Broad values such as GRUND stay
+    as UnknownNeedsReview because they are not specific enough to distinguish
+    StudyGrant from StudyLoan.
+    """
+
+    normalized = _normalize_text(raw_value)
+
+    if normalized in SOURCE_VALUE_TO_SUPPORT_TYPE:
+        return SOURCE_VALUE_TO_SUPPORT_TYPE[normalized]
+
+    underscore_normalized = normalized.replace(" ", "_").replace("-", "_")
+    if underscore_normalized in SOURCE_VALUE_TO_SUPPORT_TYPE:
+        return SOURCE_VALUE_TO_SUPPORT_TYPE[underscore_normalized]
+
+    return "UnknownNeedsReview"
+
+
+def _build_suggested_target_value_map(sample_values: list[Any]) -> dict[str, str]:
+    """Build source value -> suggested SupportType ontology value map."""
+
+    suggestions: dict[str, str] = {}
+
+    for value in sample_values:
+        if value is None or str(value).strip() == "":
+            continue
+
+        raw = str(value).strip()
+        suggestions[raw] = _suggest_target_value(raw)
+
+    return dict(sorted(suggestions.items()))
+
+
+def _build_suggested_target_group_map(
+    suggested_target_value_map: dict[str, str],
+) -> dict[str, Optional[str]]:
+    """Build source value -> suggested SupportGroup map from SupportType suggestions."""
+
+    return {
+        source_value: SUPPORT_TYPE_TO_GROUP.get(target_value)
+        for source_value, target_value in suggested_target_value_map.items()
+    }
+
 def _build_payload(
     csv_file_name: str,
     column_name: str,
@@ -651,6 +735,15 @@ def _build_payload(
     classification: dict[str, Any],
 ) -> dict[str, Any]:
     field_role = classification["field_role"]
+
+    suggested_target_value_map = _build_suggested_target_value_map(sample_values)
+    suggested_target_group_map = _build_suggested_target_group_map(
+        suggested_target_value_map
+    )
+    has_unknown_suggestions = any(
+        target_value == "UnknownNeedsReview"
+        for target_value in suggested_target_value_map.values()
+    )
 
     return {
         "id": f"{csv_file_name}::{column_name}",
@@ -676,11 +769,20 @@ def _build_payload(
         "confidence": classification["confidence"],
         "threshold": classification["threshold"],
         "samples": sample_values[:10],
-        "source_values": sorted({str(v) for v in sample_values}),
+        "source_values": sorted(
+            {str(v).strip() for v in sample_values if v is not None and str(v).strip() != ""}
+        ),
         "matched_values": classification["matched_values"],
         "rationale": classification["rationale"],
         "evidence": classification["evidence"],
         "source_description_field": classification["source_description_field"],
+
+        # Used by the Mapping Workbench so obvious values do not default to
+        # UnknownNeedsReview. The user can still override these before submit.
+        "suggested_target_value_map": suggested_target_value_map,
+        "suggested_target_group_map": suggested_target_group_map,
+        "has_unknown_suggestions": has_unknown_suggestions,
+
         "model_rules": get_support_type_model_rules(),
     }
 
@@ -953,26 +1055,99 @@ def print_reasoner_terminal_report(
 # ---------------------------------------------------------------------------
 
 def run_support_type_reasoner_on_csv(file_path: Path) -> dict[str, Any]:
-    """Run the SupportType reasoner on one CSV file."""
+    """Run the SupportType reasoner on one CSV file.
+
+    This returns the same frontend/API-friendly shape as run_support_type_reasoner(),
+    instead of returning raw score_column() objects. This keeps uploaded-file runs
+    consistent with full-folder runs.
+    """
 
     samples = read_csv_samples(file_path)
     all_columns = list(samples.keys())
 
-    fields = [
-        score_column(
+    accepted_fields: list[dict[str, Any]] = []
+    review_fields: list[dict[str, Any]] = []
+    context_fields: list[dict[str, Any]] = []
+    rejected_fields: list[dict[str, Any]] = []
+    empty_fields: list[dict[str, Any]] = []
+
+    for column_name, values in samples.items():
+        sample_values = [
+            value
+            for value in values
+            if value is not None and str(value).strip() != ""
+        ]
+
+        if not sample_values:
+            empty_fields.append(
+                {
+                    "id": f"{file_path.name}::{column_name}",
+                    "file": file_path.name,
+                    "field": column_name,
+                    "name": column_name,
+                    "status": "empty",
+                    "field_role": "empty_field",
+                    "confidence": 0.0,
+                    "whySkipped": "Column has no non-empty sample values.",
+                }
+            )
+            continue
+
+        classification = score_column(
             source_file=file_path.name,
-            column_name=column,
-            sample_values=values,
+            column_name=column_name,
+            sample_values=sample_values[:50],
             all_columns=all_columns,
         )
-        for column, values in samples.items()
-    ]
+
+        payload = _build_payload(
+            csv_file_name=file_path.name,
+            column_name=column_name,
+            sample_values=sample_values,
+            classification=classification,
+        )
+
+        if payload["field_role"] == "primary_mapping_field":
+            accepted_fields.append(payload)
+        elif payload["field_role"] == "review_field":
+            review_fields.append(payload)
+        elif payload["field_role"] in {"context_field", "evidence_field", "descriptor_field"}:
+            context_fields.append(payload)
+        else:
+            rejected_fields.append(payload)
+
+    considered_fields = review_fields + context_fields + rejected_fields
 
     return {
         "source_file": file_path.name,
         "target_concept": TARGET_CONCEPT,
+        "target_model": "SupportType",
         "model_rules": get_support_type_model_rules(),
-        "fields": fields,
+
+        # Same convention as run_support_type_reasoner(): only fields are
+        # auto-sent to matcher/transformer. Everything else is review/supporting.
+        "fields": accepted_fields,
+        "considered_fields": considered_fields,
+        "other_fields": empty_fields,
+        "review_fields": review_fields,
+        "context_fields": context_fields,
+        "rejected_fields": rejected_fields,
+        "empty_fields": empty_fields,
+
+        "summary": {
+            "accepted_primary_mapping_fields": len(accepted_fields),
+            "review_fields": len(review_fields),
+            "context_or_evidence_fields": len(context_fields),
+            "rejected_fields": len(rejected_fields),
+            "empty_fields": len(empty_fields),
+            "total_fields_checked": (
+                len(accepted_fields)
+                + len(review_fields)
+                + len(context_fields)
+                + len(rejected_fields)
+                + len(empty_fields)
+            ),
+        },
     }
 
 

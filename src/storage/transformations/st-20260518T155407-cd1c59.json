@@ -1,0 +1,2745 @@
+{
+  "concept": "SupportType",
+  "person_id": "20000421-1234",
+  "generated_at": "2026-05-18T15:54:07.689794+00:00",
+  "matches": [
+    {
+      "support_type": "ActivitySupport",
+      "support_group": "WorkSupport",
+      "source_value": "Activity support",
+      "source_description": null,
+      "source_file": "af_benefit_type_decision.csv",
+      "source_field": "benefit_type",
+      "source_record_id": "row0",
+      "mapping_rule_id": "support.af.benefit_type_decision.benefit_type",
+      "mapping_rationale": "AF benefit type decisions describe the type of labour-market benefit. Activity support benefit values map to the ontology support type ActivitySupport.",
+      "meta": {
+        "reasoner_confidence": 0.981,
+        "reasoner_evidence": {
+          "log_odds": 3.97,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.0,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 0.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.0,
+              "weight": 0.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 0.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 1,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "activity support"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 16,
+            "cardinality_ratio": 1.0
+          },
+          "description_field": null,
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "ActivitySupport",
+      "support_group": "WorkSupport",
+      "source_value": "FK:AS",
+      "source_description": null,
+      "source_file": "fk_case.csv",
+      "source_field": "benefit_group_code",
+      "source_record_id": "case_id:-AS-20250000",
+      "mapping_rule_id": "support.fk.case.benefit_group_code",
+      "mapping_rationale": "FK benefit group code FK:AS represents activity support and maps to the ontology support type ActivitySupport.",
+      "meta": {
+        "reasoner_confidence": 0.981,
+        "reasoner_evidence": {
+          "log_odds": 3.97,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.0,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 0.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.0,
+              "weight": 0.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 0.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 1,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "fk:as"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 5,
+            "cardinality_ratio": 1.0
+          },
+          "description_field": null,
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "ActivitySupport",
+      "support_group": "WorkSupport",
+      "source_value": "Activity support",
+      "source_description": null,
+      "source_file": "fk_payment.csv",
+      "source_field": "benefit_type",
+      "source_record_id": "case_id:-AS-20250000",
+      "mapping_rule_id": "support.fk.payment.benefit_type",
+      "mapping_rationale": "FK payment records include the benefit type connected to the payment. Activity support values map to the ontology support type ActivitySupport.",
+      "meta": {
+        "reasoner_confidence": 0.988,
+        "reasoner_evidence": {
+          "log_odds": 4.37,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.5,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 0.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.5,
+              "weight": 0.8,
+              "log_odds_delta": 0.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 0.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 4,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "activity support"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 16,
+            "cardinality_ratio": 0.25
+          },
+          "description_field": null,
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "ActivitySupport",
+      "support_group": "WorkSupport",
+      "source_value": "Activity support",
+      "source_description": null,
+      "source_file": "fk_payment.csv",
+      "source_field": "benefit_type",
+      "source_record_id": "case_id:-AS-20250000",
+      "mapping_rule_id": "support.fk.payment.benefit_type",
+      "mapping_rationale": "FK payment records include the benefit type connected to the payment. Activity support values map to the ontology support type ActivitySupport.",
+      "meta": {
+        "reasoner_confidence": 0.988,
+        "reasoner_evidence": {
+          "log_odds": 4.37,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.5,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 0.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.5,
+              "weight": 0.8,
+              "log_odds_delta": 0.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 0.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 4,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "activity support"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 16,
+            "cardinality_ratio": 0.25
+          },
+          "description_field": null,
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "ActivitySupport",
+      "support_group": "WorkSupport",
+      "source_value": "Activity support",
+      "source_description": null,
+      "source_file": "fk_payment.csv",
+      "source_field": "benefit_type",
+      "source_record_id": "case_id:-AS-20250000",
+      "mapping_rule_id": "support.fk.payment.benefit_type",
+      "mapping_rationale": "FK payment records include the benefit type connected to the payment. Activity support values map to the ontology support type ActivitySupport.",
+      "meta": {
+        "reasoner_confidence": 0.988,
+        "reasoner_evidence": {
+          "log_odds": 4.37,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.5,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 0.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.5,
+              "weight": 0.8,
+              "log_odds_delta": 0.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 0.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 4,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "activity support"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 16,
+            "cardinality_ratio": 0.25
+          },
+          "description_field": null,
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "ActivitySupport",
+      "support_group": "WorkSupport",
+      "source_value": "Activity support",
+      "source_description": null,
+      "source_file": "fk_payment.csv",
+      "source_field": "benefit_type",
+      "source_record_id": "case_id:-AS-20250000",
+      "mapping_rule_id": "support.fk.payment.benefit_type",
+      "mapping_rationale": "FK payment records include the benefit type connected to the payment. Activity support values map to the ontology support type ActivitySupport.",
+      "meta": {
+        "reasoner_confidence": 0.988,
+        "reasoner_evidence": {
+          "log_odds": 4.37,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.5,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 0.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.5,
+              "weight": 0.8,
+              "log_odds_delta": 0.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 0.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 4,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "activity support"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 16,
+            "cardinality_ratio": 0.25
+          },
+          "description_field": null,
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "ActivitySupport",
+      "support_group": "WorkSupport",
+      "source_value": "Activity support",
+      "source_description": null,
+      "source_file": "fk_period_benefit_decision.csv",
+      "source_field": "benefit_type",
+      "source_record_id": "case_id:-AS-20250000",
+      "mapping_rule_id": "support.fk.period_benefit_decision.benefit_type",
+      "mapping_rationale": "FK period benefit decisions identify the specific benefit type. Activity support benefit values map to the ontology support type ActivitySupport.",
+      "meta": {
+        "reasoner_confidence": 0.981,
+        "reasoner_evidence": {
+          "log_odds": 3.97,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.0,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 0.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.0,
+              "weight": 0.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 0.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 1,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "activity support"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 16,
+            "cardinality_ratio": 1.0
+          },
+          "description_field": null,
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "StudyGrant",
+      "support_group": "StudySupport",
+      "source_value": "student_grant",
+      "source_description": "Student finance for studies in Sweden",
+      "source_file": "csn_study_support_case.csv",
+      "source_field": "support_type",
+      "source_record_id": "row0",
+      "mapping_rule_id": "support.csn.study_support_case.support_type",
+      "mapping_rationale": "CSN study support cases explicitly describe the type of study support. Grant-like values map to StudyGrant, while loan-like values map to StudyLoan.",
+      "meta": {
+        "reasoner_confidence": 1.0,
+        "reasoner_evidence": {
+          "log_odds": 8.99,
+          "signals": {
+            "name_exact_target_field": 1.0,
+            "name_pattern_specificity": 0.95,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.0,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 1.0
+          },
+          "contributions": [
+            {
+              "signal": "name_exact_target_field",
+              "value": 1.0,
+              "weight": 4.0,
+              "log_odds_delta": 4.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.95,
+              "weight": 4.2,
+              "log_odds_delta": 3.99,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 1.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.6,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.0,
+              "weight": 0.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 1,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "student_grant"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 13,
+            "cardinality_ratio": 1.0
+          },
+          "description_field": "support_form_description",
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "StudyGrant",
+      "support_group": "StudySupport",
+      "source_value": "GRUNDB",
+      "source_description": null,
+      "source_file": "csn_grant_decision.csv",
+      "source_field": "grant_code",
+      "source_record_id": "row0",
+      "mapping_rule_id": "support.csn.grant_decision.grant_code",
+      "mapping_rationale": "CSN grant decision records use grant codes to identify the study-support component. GRUNDB maps to StudyGrant and GRUNDL maps to StudyLoan.",
+      "meta": {
+        "reasoner_confidence": 0.977,
+        "reasoner_evidence": {
+          "log_odds": 3.76,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.8,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.0,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 0.0
+          },
+          "contributions": [
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.8,
+              "weight": 4.2,
+              "log_odds_delta": 3.36,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.0,
+              "weight": 0.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 0.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 1,
+            "unique": 1,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "grundb"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 6,
+            "cardinality_ratio": 1.0
+          },
+          "description_field": null,
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "StudyGrant",
+      "support_group": "StudySupport",
+      "source_value": "GRUNDB",
+      "source_description": "Grant",
+      "source_file": "csn_approved_amounts.csv",
+      "source_field": "amount_type_code",
+      "source_record_id": "row0",
+      "mapping_rule_id": "support.csn.approved_amounts.amount_type_code",
+      "mapping_rationale": "CSN approved amounts are divided by amount type. GRUNDB represents the grant component and maps to StudyGrant, while GRUNDL represents the loan component and maps to StudyLoan.",
+      "meta": {
+        "reasoner_confidence": 0.99,
+        "reasoner_evidence": {
+          "log_odds": 4.57,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.0,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 1.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 1.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.6,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.0,
+              "weight": 0.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 2,
+            "unique": 2,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "grundb",
+              "grundl"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 6,
+            "cardinality_ratio": 1.0
+          },
+          "description_field": "amount_type_label",
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    },
+    {
+      "support_type": "StudyLoan",
+      "support_group": "StudySupport",
+      "source_value": "GRUNDL",
+      "source_description": "Loan",
+      "source_file": "csn_approved_amounts.csv",
+      "source_field": "amount_type_code",
+      "source_record_id": "row1",
+      "mapping_rule_id": "support.csn.approved_amounts.amount_type_code",
+      "mapping_rationale": "CSN approved amounts are divided by amount type. GRUNDB represents the grant component and maps to StudyGrant, while GRUNDL represents the loan component and maps to StudyLoan.",
+      "meta": {
+        "reasoner_confidence": 0.99,
+        "reasoner_evidence": {
+          "log_odds": 4.57,
+          "signals": {
+            "name_exact_target_field": 0.0,
+            "name_pattern_specificity": 0.85,
+            "name_in_negative_list": 0.0,
+            "is_description_column": 0.0,
+            "value_target_match": 0.0,
+            "value_source_hint_match": 1.0,
+            "low_cardinality_categorical": 0.0,
+            "values_look_numeric": 0.0,
+            "values_look_like_dates": 0.0,
+            "values_freeform_high_cardinality": 0.0,
+            "description_sibling_present": 1.0
+          },
+          "contributions": [
+            {
+              "signal": "name_pattern_specificity",
+              "value": 0.85,
+              "weight": 4.2,
+              "log_odds_delta": 3.57,
+              "polarity": "positive"
+            },
+            {
+              "signal": "value_source_hint_match",
+              "value": 1.0,
+              "weight": 3.4,
+              "log_odds_delta": 3.4,
+              "polarity": "positive"
+            },
+            {
+              "signal": "description_sibling_present",
+              "value": 1.0,
+              "weight": 0.6,
+              "log_odds_delta": 0.6,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_exact_target_field",
+              "value": 0.0,
+              "weight": 4.0,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "name_in_negative_list",
+              "value": 0.0,
+              "weight": -5.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "is_description_column",
+              "value": 0.0,
+              "weight": -2.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "value_target_match",
+              "value": 0.0,
+              "weight": 3.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "low_cardinality_categorical",
+              "value": 0.0,
+              "weight": 0.8,
+              "log_odds_delta": 0.0,
+              "polarity": "positive"
+            },
+            {
+              "signal": "values_look_numeric",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_look_like_dates",
+              "value": 0.0,
+              "weight": -3.0,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            },
+            {
+              "signal": "values_freeform_high_cardinality",
+              "value": 0.0,
+              "weight": -1.5,
+              "log_odds_delta": -0.0,
+              "polarity": "negative"
+            }
+          ],
+          "value_diagnostics": {
+            "checked": 2,
+            "unique": 2,
+            "matched_target_values": [],
+            "matched_source_hints": [
+              "grundb",
+              "grundl"
+            ],
+            "numeric_share": 0.0,
+            "date_share": 0.0,
+            "mean_length": 6,
+            "cardinality_ratio": 1.0
+          },
+          "description_field": "amount_type_label",
+          "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+        },
+        "csv_row_number": null
+      }
+    }
+  ],
+  "unmatched_values": [],
+  "skipped_files": [],
+  "files_with_no_person_rows": [],
+  "reasoner_fields_used": [
+    {
+      "id": "af_benefit_type_decision.csv::benefit_type",
+      "name": "benefit_type",
+      "field": "benefit_type",
+      "file": "af_benefit_type_decision.csv",
+      "type": "categorical",
+      "status": "accepted",
+      "color": "teal",
+      "field_role": "primary_mapping_field",
+      "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "concept": "SupportType",
+      "target_concept": "SupportType",
+      "target_model": "SupportType",
+      "target_model_field": "source_value",
+      "matching_role": "candidate_source_value_field",
+      "confidence": 0.981,
+      "threshold": 0.65,
+      "samples": [
+        "Activity support"
+      ],
+      "source_values": [
+        "Activity support"
+      ],
+      "matched_values": [
+        "activity support"
+      ],
+      "rationale": "column name matches a SupportType pattern (specificity=0.85); sample values include known source-system hints: activity support; role=primary_mapping_field: field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "evidence": {
+        "log_odds": 3.97,
+        "signals": {
+          "name_exact_target_field": 0.0,
+          "name_pattern_specificity": 0.85,
+          "name_in_negative_list": 0.0,
+          "is_description_column": 0.0,
+          "value_target_match": 0.0,
+          "value_source_hint_match": 1.0,
+          "low_cardinality_categorical": 0.0,
+          "values_look_numeric": 0.0,
+          "values_look_like_dates": 0.0,
+          "values_freeform_high_cardinality": 0.0,
+          "description_sibling_present": 0.0
+        },
+        "contributions": [
+          {
+            "signal": "name_pattern_specificity",
+            "value": 0.85,
+            "weight": 4.2,
+            "log_odds_delta": 3.57,
+            "polarity": "positive"
+          },
+          {
+            "signal": "value_source_hint_match",
+            "value": 1.0,
+            "weight": 3.4,
+            "log_odds_delta": 3.4,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_exact_target_field",
+            "value": 0.0,
+            "weight": 4.0,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_in_negative_list",
+            "value": 0.0,
+            "weight": -5.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "is_description_column",
+            "value": 0.0,
+            "weight": -2.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "value_target_match",
+            "value": 0.0,
+            "weight": 3.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "low_cardinality_categorical",
+            "value": 0.0,
+            "weight": 0.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "values_look_numeric",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_look_like_dates",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_freeform_high_cardinality",
+            "value": 0.0,
+            "weight": -1.5,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "description_sibling_present",
+            "value": 0.0,
+            "weight": 0.6,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          }
+        ],
+        "value_diagnostics": {
+          "checked": 1,
+          "unique": 1,
+          "matched_target_values": [],
+          "matched_source_hints": [
+            "activity support"
+          ],
+          "numeric_share": 0.0,
+          "date_share": 0.0,
+          "mean_length": 16,
+          "cardinality_ratio": 1.0
+        },
+        "description_field": null,
+        "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+      },
+      "source_description_field": null,
+      "suggested_target_value_map": {
+        "Activity support": "ActivitySupport"
+      },
+      "suggested_target_group_map": {
+        "Activity support": "WorkSupport"
+      },
+      "has_unknown_suggestions": false,
+      "model_rules": {
+        "target_concept": "SupportType",
+        "target_model": "SupportType",
+        "target_model_fields": [
+          "mapping_rationale",
+          "mapping_rule_id",
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value",
+          "support_group",
+          "support_type"
+        ],
+        "required_fields": [
+          "support_type",
+          "support_group",
+          "source_value",
+          "source_file",
+          "source_field",
+          "source_record_id",
+          "mapping_rule_id"
+        ],
+        "source_value_model_field": "source_value",
+        "target_value_field": "support_type",
+        "target_group_field": "support_group",
+        "allowed_support_types": [
+          "ActivitySupport",
+          "StudyGrant",
+          "StudyLoan"
+        ],
+        "allowed_support_groups": [
+          "StudySupport",
+          "WorkSupport"
+        ],
+        "provenance_fields": [
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value"
+        ],
+        "mapping_trace_fields": [
+          "mapping_rationale",
+          "mapping_rule_id"
+        ]
+      }
+    },
+    {
+      "id": "csn_approved_amounts.csv::amount_type_code",
+      "name": "amount_type_code",
+      "field": "amount_type_code",
+      "file": "csn_approved_amounts.csv",
+      "type": "categorical",
+      "status": "accepted",
+      "color": "teal",
+      "field_role": "primary_mapping_field",
+      "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "concept": "SupportType",
+      "target_concept": "SupportType",
+      "target_model": "SupportType",
+      "target_model_field": "source_value",
+      "matching_role": "candidate_source_value_field",
+      "confidence": 0.99,
+      "threshold": 0.65,
+      "samples": [
+        "GRUNDB",
+        "GRUNDL"
+      ],
+      "source_values": [
+        "GRUNDB",
+        "GRUNDL"
+      ],
+      "matched_values": [
+        "grundb",
+        "grundl"
+      ],
+      "rationale": "column name matches a SupportType pattern (specificity=0.85); sample values include known source-system hints: grundb, grundl; role=primary_mapping_field: field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "evidence": {
+        "log_odds": 4.57,
+        "signals": {
+          "name_exact_target_field": 0.0,
+          "name_pattern_specificity": 0.85,
+          "name_in_negative_list": 0.0,
+          "is_description_column": 0.0,
+          "value_target_match": 0.0,
+          "value_source_hint_match": 1.0,
+          "low_cardinality_categorical": 0.0,
+          "values_look_numeric": 0.0,
+          "values_look_like_dates": 0.0,
+          "values_freeform_high_cardinality": 0.0,
+          "description_sibling_present": 1.0
+        },
+        "contributions": [
+          {
+            "signal": "name_pattern_specificity",
+            "value": 0.85,
+            "weight": 4.2,
+            "log_odds_delta": 3.57,
+            "polarity": "positive"
+          },
+          {
+            "signal": "value_source_hint_match",
+            "value": 1.0,
+            "weight": 3.4,
+            "log_odds_delta": 3.4,
+            "polarity": "positive"
+          },
+          {
+            "signal": "description_sibling_present",
+            "value": 1.0,
+            "weight": 0.6,
+            "log_odds_delta": 0.6,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_exact_target_field",
+            "value": 0.0,
+            "weight": 4.0,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_in_negative_list",
+            "value": 0.0,
+            "weight": -5.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "is_description_column",
+            "value": 0.0,
+            "weight": -2.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "value_target_match",
+            "value": 0.0,
+            "weight": 3.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "low_cardinality_categorical",
+            "value": 0.0,
+            "weight": 0.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "values_look_numeric",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_look_like_dates",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_freeform_high_cardinality",
+            "value": 0.0,
+            "weight": -1.5,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          }
+        ],
+        "value_diagnostics": {
+          "checked": 2,
+          "unique": 2,
+          "matched_target_values": [],
+          "matched_source_hints": [
+            "grundb",
+            "grundl"
+          ],
+          "numeric_share": 0.0,
+          "date_share": 0.0,
+          "mean_length": 6,
+          "cardinality_ratio": 1.0
+        },
+        "description_field": "amount_type_label",
+        "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+      },
+      "source_description_field": "amount_type_label",
+      "suggested_target_value_map": {
+        "GRUNDB": "StudyGrant",
+        "GRUNDL": "StudyLoan"
+      },
+      "suggested_target_group_map": {
+        "GRUNDB": "StudySupport",
+        "GRUNDL": "StudySupport"
+      },
+      "has_unknown_suggestions": false,
+      "model_rules": {
+        "target_concept": "SupportType",
+        "target_model": "SupportType",
+        "target_model_fields": [
+          "mapping_rationale",
+          "mapping_rule_id",
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value",
+          "support_group",
+          "support_type"
+        ],
+        "required_fields": [
+          "support_type",
+          "support_group",
+          "source_value",
+          "source_file",
+          "source_field",
+          "source_record_id",
+          "mapping_rule_id"
+        ],
+        "source_value_model_field": "source_value",
+        "target_value_field": "support_type",
+        "target_group_field": "support_group",
+        "allowed_support_types": [
+          "ActivitySupport",
+          "StudyGrant",
+          "StudyLoan"
+        ],
+        "allowed_support_groups": [
+          "StudySupport",
+          "WorkSupport"
+        ],
+        "provenance_fields": [
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value"
+        ],
+        "mapping_trace_fields": [
+          "mapping_rationale",
+          "mapping_rule_id"
+        ]
+      }
+    },
+    {
+      "id": "csn_grant_decision.csv::grant_code",
+      "name": "grant_code",
+      "field": "grant_code",
+      "file": "csn_grant_decision.csv",
+      "type": "categorical",
+      "status": "accepted",
+      "color": "teal",
+      "field_role": "primary_mapping_field",
+      "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "concept": "SupportType",
+      "target_concept": "SupportType",
+      "target_model": "SupportType",
+      "target_model_field": "source_value",
+      "matching_role": "candidate_source_value_field",
+      "confidence": 0.977,
+      "threshold": 0.65,
+      "samples": [
+        "GRUNDB"
+      ],
+      "source_values": [
+        "GRUNDB"
+      ],
+      "matched_values": [
+        "grundb"
+      ],
+      "rationale": "column name matches a SupportType pattern (specificity=0.80); sample values include known source-system hints: grundb; role=primary_mapping_field: field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "evidence": {
+        "log_odds": 3.76,
+        "signals": {
+          "name_exact_target_field": 0.0,
+          "name_pattern_specificity": 0.8,
+          "name_in_negative_list": 0.0,
+          "is_description_column": 0.0,
+          "value_target_match": 0.0,
+          "value_source_hint_match": 1.0,
+          "low_cardinality_categorical": 0.0,
+          "values_look_numeric": 0.0,
+          "values_look_like_dates": 0.0,
+          "values_freeform_high_cardinality": 0.0,
+          "description_sibling_present": 0.0
+        },
+        "contributions": [
+          {
+            "signal": "value_source_hint_match",
+            "value": 1.0,
+            "weight": 3.4,
+            "log_odds_delta": 3.4,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_pattern_specificity",
+            "value": 0.8,
+            "weight": 4.2,
+            "log_odds_delta": 3.36,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_exact_target_field",
+            "value": 0.0,
+            "weight": 4.0,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_in_negative_list",
+            "value": 0.0,
+            "weight": -5.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "is_description_column",
+            "value": 0.0,
+            "weight": -2.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "value_target_match",
+            "value": 0.0,
+            "weight": 3.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "low_cardinality_categorical",
+            "value": 0.0,
+            "weight": 0.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "values_look_numeric",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_look_like_dates",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_freeform_high_cardinality",
+            "value": 0.0,
+            "weight": -1.5,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "description_sibling_present",
+            "value": 0.0,
+            "weight": 0.6,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          }
+        ],
+        "value_diagnostics": {
+          "checked": 1,
+          "unique": 1,
+          "matched_target_values": [],
+          "matched_source_hints": [
+            "grundb"
+          ],
+          "numeric_share": 0.0,
+          "date_share": 0.0,
+          "mean_length": 6,
+          "cardinality_ratio": 1.0
+        },
+        "description_field": null,
+        "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+      },
+      "source_description_field": null,
+      "suggested_target_value_map": {
+        "GRUNDB": "StudyGrant"
+      },
+      "suggested_target_group_map": {
+        "GRUNDB": "StudySupport"
+      },
+      "has_unknown_suggestions": false,
+      "model_rules": {
+        "target_concept": "SupportType",
+        "target_model": "SupportType",
+        "target_model_fields": [
+          "mapping_rationale",
+          "mapping_rule_id",
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value",
+          "support_group",
+          "support_type"
+        ],
+        "required_fields": [
+          "support_type",
+          "support_group",
+          "source_value",
+          "source_file",
+          "source_field",
+          "source_record_id",
+          "mapping_rule_id"
+        ],
+        "source_value_model_field": "source_value",
+        "target_value_field": "support_type",
+        "target_group_field": "support_group",
+        "allowed_support_types": [
+          "ActivitySupport",
+          "StudyGrant",
+          "StudyLoan"
+        ],
+        "allowed_support_groups": [
+          "StudySupport",
+          "WorkSupport"
+        ],
+        "provenance_fields": [
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value"
+        ],
+        "mapping_trace_fields": [
+          "mapping_rationale",
+          "mapping_rule_id"
+        ]
+      }
+    },
+    {
+      "id": "csn_study_support_case.csv::support_type",
+      "name": "support_type",
+      "field": "support_type",
+      "file": "csn_study_support_case.csv",
+      "type": "categorical",
+      "status": "accepted",
+      "color": "teal",
+      "field_role": "primary_mapping_field",
+      "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "concept": "SupportType",
+      "target_concept": "SupportType",
+      "target_model": "SupportType",
+      "target_model_field": "source_value",
+      "matching_role": "candidate_source_value_field",
+      "confidence": 1.0,
+      "threshold": 0.65,
+      "samples": [
+        "student_grant"
+      ],
+      "source_values": [
+        "student_grant"
+      ],
+      "matched_values": [
+        "student_grant"
+      ],
+      "rationale": "column name matches the SupportType target field exactly; sample values include known source-system hints: student_grant; role=primary_mapping_field: field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "evidence": {
+        "log_odds": 8.99,
+        "signals": {
+          "name_exact_target_field": 1.0,
+          "name_pattern_specificity": 0.95,
+          "name_in_negative_list": 0.0,
+          "is_description_column": 0.0,
+          "value_target_match": 0.0,
+          "value_source_hint_match": 1.0,
+          "low_cardinality_categorical": 0.0,
+          "values_look_numeric": 0.0,
+          "values_look_like_dates": 0.0,
+          "values_freeform_high_cardinality": 0.0,
+          "description_sibling_present": 1.0
+        },
+        "contributions": [
+          {
+            "signal": "name_exact_target_field",
+            "value": 1.0,
+            "weight": 4.0,
+            "log_odds_delta": 4.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_pattern_specificity",
+            "value": 0.95,
+            "weight": 4.2,
+            "log_odds_delta": 3.99,
+            "polarity": "positive"
+          },
+          {
+            "signal": "value_source_hint_match",
+            "value": 1.0,
+            "weight": 3.4,
+            "log_odds_delta": 3.4,
+            "polarity": "positive"
+          },
+          {
+            "signal": "description_sibling_present",
+            "value": 1.0,
+            "weight": 0.6,
+            "log_odds_delta": 0.6,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_in_negative_list",
+            "value": 0.0,
+            "weight": -5.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "is_description_column",
+            "value": 0.0,
+            "weight": -2.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "value_target_match",
+            "value": 0.0,
+            "weight": 3.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "low_cardinality_categorical",
+            "value": 0.0,
+            "weight": 0.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "values_look_numeric",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_look_like_dates",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_freeform_high_cardinality",
+            "value": 0.0,
+            "weight": -1.5,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          }
+        ],
+        "value_diagnostics": {
+          "checked": 1,
+          "unique": 1,
+          "matched_target_values": [],
+          "matched_source_hints": [
+            "student_grant"
+          ],
+          "numeric_share": 0.0,
+          "date_share": 0.0,
+          "mean_length": 13,
+          "cardinality_ratio": 1.0
+        },
+        "description_field": "support_form_description",
+        "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+      },
+      "source_description_field": "support_form_description",
+      "suggested_target_value_map": {
+        "student_grant": "StudyGrant"
+      },
+      "suggested_target_group_map": {
+        "student_grant": "StudySupport"
+      },
+      "has_unknown_suggestions": false,
+      "model_rules": {
+        "target_concept": "SupportType",
+        "target_model": "SupportType",
+        "target_model_fields": [
+          "mapping_rationale",
+          "mapping_rule_id",
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value",
+          "support_group",
+          "support_type"
+        ],
+        "required_fields": [
+          "support_type",
+          "support_group",
+          "source_value",
+          "source_file",
+          "source_field",
+          "source_record_id",
+          "mapping_rule_id"
+        ],
+        "source_value_model_field": "source_value",
+        "target_value_field": "support_type",
+        "target_group_field": "support_group",
+        "allowed_support_types": [
+          "ActivitySupport",
+          "StudyGrant",
+          "StudyLoan"
+        ],
+        "allowed_support_groups": [
+          "StudySupport",
+          "WorkSupport"
+        ],
+        "provenance_fields": [
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value"
+        ],
+        "mapping_trace_fields": [
+          "mapping_rationale",
+          "mapping_rule_id"
+        ]
+      }
+    },
+    {
+      "id": "fk_case.csv::benefit_group_code",
+      "name": "benefit_group_code",
+      "field": "benefit_group_code",
+      "file": "fk_case.csv",
+      "type": "categorical",
+      "status": "accepted",
+      "color": "teal",
+      "field_role": "primary_mapping_field",
+      "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "concept": "SupportType",
+      "target_concept": "SupportType",
+      "target_model": "SupportType",
+      "target_model_field": "source_value",
+      "matching_role": "candidate_source_value_field",
+      "confidence": 0.981,
+      "threshold": 0.65,
+      "samples": [
+        "FK:AS"
+      ],
+      "source_values": [
+        "FK:AS"
+      ],
+      "matched_values": [
+        "fk:as"
+      ],
+      "rationale": "column name matches a SupportType pattern (specificity=0.85); sample values include known source-system hints: fk:as; role=primary_mapping_field: field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "evidence": {
+        "log_odds": 3.97,
+        "signals": {
+          "name_exact_target_field": 0.0,
+          "name_pattern_specificity": 0.85,
+          "name_in_negative_list": 0.0,
+          "is_description_column": 0.0,
+          "value_target_match": 0.0,
+          "value_source_hint_match": 1.0,
+          "low_cardinality_categorical": 0.0,
+          "values_look_numeric": 0.0,
+          "values_look_like_dates": 0.0,
+          "values_freeform_high_cardinality": 0.0,
+          "description_sibling_present": 0.0
+        },
+        "contributions": [
+          {
+            "signal": "name_pattern_specificity",
+            "value": 0.85,
+            "weight": 4.2,
+            "log_odds_delta": 3.57,
+            "polarity": "positive"
+          },
+          {
+            "signal": "value_source_hint_match",
+            "value": 1.0,
+            "weight": 3.4,
+            "log_odds_delta": 3.4,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_exact_target_field",
+            "value": 0.0,
+            "weight": 4.0,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_in_negative_list",
+            "value": 0.0,
+            "weight": -5.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "is_description_column",
+            "value": 0.0,
+            "weight": -2.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "value_target_match",
+            "value": 0.0,
+            "weight": 3.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "low_cardinality_categorical",
+            "value": 0.0,
+            "weight": 0.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "values_look_numeric",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_look_like_dates",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_freeform_high_cardinality",
+            "value": 0.0,
+            "weight": -1.5,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "description_sibling_present",
+            "value": 0.0,
+            "weight": 0.6,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          }
+        ],
+        "value_diagnostics": {
+          "checked": 1,
+          "unique": 1,
+          "matched_target_values": [],
+          "matched_source_hints": [
+            "fk:as"
+          ],
+          "numeric_share": 0.0,
+          "date_share": 0.0,
+          "mean_length": 5,
+          "cardinality_ratio": 1.0
+        },
+        "description_field": null,
+        "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+      },
+      "source_description_field": null,
+      "suggested_target_value_map": {
+        "FK:AS": "ActivitySupport"
+      },
+      "suggested_target_group_map": {
+        "FK:AS": "WorkSupport"
+      },
+      "has_unknown_suggestions": false,
+      "model_rules": {
+        "target_concept": "SupportType",
+        "target_model": "SupportType",
+        "target_model_fields": [
+          "mapping_rationale",
+          "mapping_rule_id",
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value",
+          "support_group",
+          "support_type"
+        ],
+        "required_fields": [
+          "support_type",
+          "support_group",
+          "source_value",
+          "source_file",
+          "source_field",
+          "source_record_id",
+          "mapping_rule_id"
+        ],
+        "source_value_model_field": "source_value",
+        "target_value_field": "support_type",
+        "target_group_field": "support_group",
+        "allowed_support_types": [
+          "ActivitySupport",
+          "StudyGrant",
+          "StudyLoan"
+        ],
+        "allowed_support_groups": [
+          "StudySupport",
+          "WorkSupport"
+        ],
+        "provenance_fields": [
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value"
+        ],
+        "mapping_trace_fields": [
+          "mapping_rationale",
+          "mapping_rule_id"
+        ]
+      }
+    },
+    {
+      "id": "fk_payment.csv::benefit_type",
+      "name": "benefit_type",
+      "field": "benefit_type",
+      "file": "fk_payment.csv",
+      "type": "categorical",
+      "status": "accepted",
+      "color": "teal",
+      "field_role": "primary_mapping_field",
+      "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "concept": "SupportType",
+      "target_concept": "SupportType",
+      "target_model": "SupportType",
+      "target_model_field": "source_value",
+      "matching_role": "candidate_source_value_field",
+      "confidence": 0.988,
+      "threshold": 0.65,
+      "samples": [
+        "Activity support",
+        "Activity support",
+        "Activity support",
+        "Activity support"
+      ],
+      "source_values": [
+        "Activity support"
+      ],
+      "matched_values": [
+        "activity support"
+      ],
+      "rationale": "column name matches a SupportType pattern (specificity=0.85); sample values include known source-system hints: activity support; role=primary_mapping_field: field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "evidence": {
+        "log_odds": 4.37,
+        "signals": {
+          "name_exact_target_field": 0.0,
+          "name_pattern_specificity": 0.85,
+          "name_in_negative_list": 0.0,
+          "is_description_column": 0.0,
+          "value_target_match": 0.0,
+          "value_source_hint_match": 1.0,
+          "low_cardinality_categorical": 0.5,
+          "values_look_numeric": 0.0,
+          "values_look_like_dates": 0.0,
+          "values_freeform_high_cardinality": 0.0,
+          "description_sibling_present": 0.0
+        },
+        "contributions": [
+          {
+            "signal": "name_pattern_specificity",
+            "value": 0.85,
+            "weight": 4.2,
+            "log_odds_delta": 3.57,
+            "polarity": "positive"
+          },
+          {
+            "signal": "value_source_hint_match",
+            "value": 1.0,
+            "weight": 3.4,
+            "log_odds_delta": 3.4,
+            "polarity": "positive"
+          },
+          {
+            "signal": "low_cardinality_categorical",
+            "value": 0.5,
+            "weight": 0.8,
+            "log_odds_delta": 0.4,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_exact_target_field",
+            "value": 0.0,
+            "weight": 4.0,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_in_negative_list",
+            "value": 0.0,
+            "weight": -5.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "is_description_column",
+            "value": 0.0,
+            "weight": -2.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "value_target_match",
+            "value": 0.0,
+            "weight": 3.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "values_look_numeric",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_look_like_dates",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_freeform_high_cardinality",
+            "value": 0.0,
+            "weight": -1.5,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "description_sibling_present",
+            "value": 0.0,
+            "weight": 0.6,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          }
+        ],
+        "value_diagnostics": {
+          "checked": 4,
+          "unique": 1,
+          "matched_target_values": [],
+          "matched_source_hints": [
+            "activity support"
+          ],
+          "numeric_share": 0.0,
+          "date_share": 0.0,
+          "mean_length": 16,
+          "cardinality_ratio": 0.25
+        },
+        "description_field": null,
+        "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+      },
+      "source_description_field": null,
+      "suggested_target_value_map": {
+        "Activity support": "ActivitySupport"
+      },
+      "suggested_target_group_map": {
+        "Activity support": "WorkSupport"
+      },
+      "has_unknown_suggestions": false,
+      "model_rules": {
+        "target_concept": "SupportType",
+        "target_model": "SupportType",
+        "target_model_fields": [
+          "mapping_rationale",
+          "mapping_rule_id",
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value",
+          "support_group",
+          "support_type"
+        ],
+        "required_fields": [
+          "support_type",
+          "support_group",
+          "source_value",
+          "source_file",
+          "source_field",
+          "source_record_id",
+          "mapping_rule_id"
+        ],
+        "source_value_model_field": "source_value",
+        "target_value_field": "support_type",
+        "target_group_field": "support_group",
+        "allowed_support_types": [
+          "ActivitySupport",
+          "StudyGrant",
+          "StudyLoan"
+        ],
+        "allowed_support_groups": [
+          "StudySupport",
+          "WorkSupport"
+        ],
+        "provenance_fields": [
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value"
+        ],
+        "mapping_trace_fields": [
+          "mapping_rationale",
+          "mapping_rule_id"
+        ]
+      }
+    },
+    {
+      "id": "fk_period_benefit_decision.csv::benefit_type",
+      "name": "benefit_type",
+      "field": "benefit_type",
+      "file": "fk_period_benefit_decision.csv",
+      "type": "categorical",
+      "status": "accepted",
+      "color": "teal",
+      "field_role": "primary_mapping_field",
+      "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "concept": "SupportType",
+      "target_concept": "SupportType",
+      "target_model": "SupportType",
+      "target_model_field": "source_value",
+      "matching_role": "candidate_source_value_field",
+      "confidence": 0.981,
+      "threshold": 0.65,
+      "samples": [
+        "Activity support"
+      ],
+      "source_values": [
+        "Activity support"
+      ],
+      "matched_values": [
+        "activity support"
+      ],
+      "rationale": "column name matches a SupportType pattern (specificity=0.85); sample values include known source-system hints: activity support; role=primary_mapping_field: field is a strong SupportType source-value candidate with known SupportType value evidence",
+      "evidence": {
+        "log_odds": 3.97,
+        "signals": {
+          "name_exact_target_field": 0.0,
+          "name_pattern_specificity": 0.85,
+          "name_in_negative_list": 0.0,
+          "is_description_column": 0.0,
+          "value_target_match": 0.0,
+          "value_source_hint_match": 1.0,
+          "low_cardinality_categorical": 0.0,
+          "values_look_numeric": 0.0,
+          "values_look_like_dates": 0.0,
+          "values_freeform_high_cardinality": 0.0,
+          "description_sibling_present": 0.0
+        },
+        "contributions": [
+          {
+            "signal": "name_pattern_specificity",
+            "value": 0.85,
+            "weight": 4.2,
+            "log_odds_delta": 3.57,
+            "polarity": "positive"
+          },
+          {
+            "signal": "value_source_hint_match",
+            "value": 1.0,
+            "weight": 3.4,
+            "log_odds_delta": 3.4,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_exact_target_field",
+            "value": 0.0,
+            "weight": 4.0,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "name_in_negative_list",
+            "value": 0.0,
+            "weight": -5.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "is_description_column",
+            "value": 0.0,
+            "weight": -2.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "value_target_match",
+            "value": 0.0,
+            "weight": 3.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "low_cardinality_categorical",
+            "value": 0.0,
+            "weight": 0.8,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          },
+          {
+            "signal": "values_look_numeric",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_look_like_dates",
+            "value": 0.0,
+            "weight": -3.0,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "values_freeform_high_cardinality",
+            "value": 0.0,
+            "weight": -1.5,
+            "log_odds_delta": -0.0,
+            "polarity": "negative"
+          },
+          {
+            "signal": "description_sibling_present",
+            "value": 0.0,
+            "weight": 0.6,
+            "log_odds_delta": 0.0,
+            "polarity": "positive"
+          }
+        ],
+        "value_diagnostics": {
+          "checked": 1,
+          "unique": 1,
+          "matched_target_values": [],
+          "matched_source_hints": [
+            "activity support"
+          ],
+          "numeric_share": 0.0,
+          "date_share": 0.0,
+          "mean_length": 16,
+          "cardinality_ratio": 1.0
+        },
+        "description_field": null,
+        "role_reason": "field is a strong SupportType source-value candidate with known SupportType value evidence"
+      },
+      "source_description_field": null,
+      "suggested_target_value_map": {
+        "Activity support": "ActivitySupport"
+      },
+      "suggested_target_group_map": {
+        "Activity support": "WorkSupport"
+      },
+      "has_unknown_suggestions": false,
+      "model_rules": {
+        "target_concept": "SupportType",
+        "target_model": "SupportType",
+        "target_model_fields": [
+          "mapping_rationale",
+          "mapping_rule_id",
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value",
+          "support_group",
+          "support_type"
+        ],
+        "required_fields": [
+          "support_type",
+          "support_group",
+          "source_value",
+          "source_file",
+          "source_field",
+          "source_record_id",
+          "mapping_rule_id"
+        ],
+        "source_value_model_field": "source_value",
+        "target_value_field": "support_type",
+        "target_group_field": "support_group",
+        "allowed_support_types": [
+          "ActivitySupport",
+          "StudyGrant",
+          "StudyLoan"
+        ],
+        "allowed_support_groups": [
+          "StudySupport",
+          "WorkSupport"
+        ],
+        "provenance_fields": [
+          "source_description",
+          "source_field",
+          "source_file",
+          "source_record_id",
+          "source_value"
+        ],
+        "mapping_trace_fields": [
+          "mapping_rationale",
+          "mapping_rule_id"
+        ]
+      }
+    }
+  ],
+  "fallback": {
+    "concept": "SupportType",
+    "fallback_used": false,
+    "fallback_value": [],
+    "reason": null
+  },
+  "summary": {
+    "matched_source_value_count": 11,
+    "transformed_object_count": 11,
+    "unmatched_count": 0,
+    "skipped_file_count": 0
+  },
+  "transformation_id": "st-20260518T155407-cd1c59",
+  "saved_at": "2026-05-18T15:54:07.692305+00:00"
+}
