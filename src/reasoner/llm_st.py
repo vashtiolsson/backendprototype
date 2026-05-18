@@ -1,6 +1,13 @@
 from __future__ import annotations
 
+import json
+import os
 from typing import Any
+
+from openai import OpenAI
+
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 ALLOWED_SUPPORT_TYPE_VALUES = {
@@ -19,64 +26,97 @@ def suggest_support_type_mapping(
     rationale: str,
 ) -> dict[str, Any]:
     """
-    LLM-style fallback suggester for SupportType mappings.
+    Real LLM-backed fallback suggester for SupportType mappings.
 
-    In the thesis prototype, this simulates what an LLM would do:
-    suggest a likely ontology value for an unmapped source value.
-
-    Important:
-    - It does NOT approve mappings automatically.
-    - It only returns a candidate.
-    - The suggestion must still be reviewed by a human.
+    The LLM only suggests candidate ontology values.
+    Human review is still required before transformation.
     """
 
-    normalized_value = source_value.strip().lower()
+    prompt = f"""
+You are helping map source-system support values to ontology values.
 
-    explanation_parts = [
-        f"Source value '{source_value}' appeared in field '{source_field}' from file '{source_file}'.",
-        f"The reasoner rationale was: {rationale}",
-    ]
+Allowed ontology values:
+- ActivitySupport
+- StudyGrant
+- StudyLoan
+- UnknownNeedsReview
 
-    if normalized_value in {"as", "fk:as", "activity support", "activity_support"}:
-        suggested_value = "ActivitySupport"
-        confidence = 0.85
-        explanation_parts.append(
-            "The value looks like an abbreviation or label for activity support."
+Source file:
+{source_file}
+
+Source field:
+{source_field}
+
+Unknown source value:
+{source_value}
+
+Sample values from the same field:
+{sample_values}
+
+Reasoner rationale:
+{rationale}
+
+Return ONLY valid JSON:
+
+{{
+  "suggested_target_value": "...",
+  "confidence": 0.0,
+  "explanation": "..."
+}}
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            temperature=0,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a careful ontology mapping assistant. "
+                        "Return JSON only."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": prompt,
+                },
+            ],
         )
 
-    elif normalized_value in {"grundb", "grant", "study grant", "student_grant", "study_grant"}:
-        suggested_value = "StudyGrant"
-        confidence = 0.85
-        explanation_parts.append(
-            "The value appears to refer to a grant-type study support."
+        content = response.choices[0].message.content or "{}"
+
+        parsed = json.loads(content)
+
+        suggested_value = parsed.get(
+            "suggested_target_value",
+            "UnknownNeedsReview",
         )
 
-    elif normalized_value in {"grundl", "loan", "study loan", "student_loan", "study_loan"}:
-        suggested_value = "StudyLoan"
-        confidence = 0.85
-        explanation_parts.append(
-            "The value appears to refer to a loan-type study support."
-        )
+        if suggested_value not in ALLOWED_SUPPORT_TYPE_VALUES:
+            suggested_value = "UnknownNeedsReview"
 
-    else:
-        suggested_value = "UnknownNeedsReview"
-        confidence = 0.35
-        explanation_parts.append(
-            "The value could not be safely mapped to a known ontology value."
-        )
+        return {
+            "source_value": source_value,
+            "suggested_target_value": suggested_value,
+            "confidence": parsed.get("confidence", 0.0),
+            "needs_human_review": True,
+            "approved": False,
+            "method": "llm_fallback_suggester_openai",
+            "allowed_values": sorted(ALLOWED_SUPPORT_TYPE_VALUES),
+            "explanation": parsed.get("explanation", ""),
+            "sample_values_seen": sample_values[:10],
+        }
 
-    if suggested_value not in ALLOWED_SUPPORT_TYPE_VALUES:
-        suggested_value = "UnknownNeedsReview"
-        confidence = 0.0
-
-    return {
-        "source_value": source_value,
-        "suggested_target_value": suggested_value,
-        "confidence": confidence,
-        "needs_human_review": True,
-        "approved": False,
-        "method": "llm_fallback_suggester_simulated",
-        "allowed_values": sorted(ALLOWED_SUPPORT_TYPE_VALUES),
-        "explanation": " ".join(explanation_parts),
-        "sample_values_seen": sample_values[:10],
-    }
+    except Exception as error:
+        return {
+            "source_value": source_value,
+            "suggested_target_value": "UnknownNeedsReview",
+            "confidence": 0.0,
+            "needs_human_review": True,
+            "approved": False,
+            "method": "llm_fallback_error",
+            "allowed_values": sorted(ALLOWED_SUPPORT_TYPE_VALUES),
+            "explanation": f"LLM fallback failed: {error}",
+            "sample_values_seen": sample_values[:10],
+        }

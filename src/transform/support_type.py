@@ -19,7 +19,7 @@ from typing import Any, Optional
 
 from pydantic import ValidationError
 
-from src.models.support_type import (
+from src.new.model_st import (
     SupportGroupValue,
     SupportType,
     SupportTypeValue,
